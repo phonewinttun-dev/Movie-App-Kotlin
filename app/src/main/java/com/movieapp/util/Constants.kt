@@ -5,18 +5,13 @@ package com.movieapp.util
  */
 object Constants {
     /**
-     * Base URL for the external movie REST API (The Movie Database / TMDB API v3).
-     * All network requests are routed directly to this endpoint without an intermediate backend.
+     * Base URL for the external movie and TV show REST API.
      */
-    const val BASE_URL = "https://api.themoviedb.org/3/"
+    const val BASE_URL = "https://www.homietv.com/api/"
 
     /**
-     * Base URL for fetching poster and backdrop image assets directly from TMDB CDN.
+     * Connection and socket timeout in seconds.
      */
-    const val IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
-
-    /**
-     * Default public API key placeholder. Replace with your actual TMDB API key or inject via BuildConfig.
-     */
-    const val DEFAULT_API_KEY = "demo_api_key"
+    const val NETWORK_TIMEOUT_SECONDS = 15L
 }
+
