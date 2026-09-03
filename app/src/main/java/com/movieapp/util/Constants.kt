@@ -5,9 +5,9 @@ package com.movieapp.util
  */
 object Constants {
     /**
-     * Base URL for the external movie and TV show REST API.
+     * Base URL for the external movie and TV show REST API loaded from BuildConfig.
      */
-    const val BASE_URL = "https://www.homietv.com/api/"
+    val BASE_URL: String = com.movieapp.BuildConfig.MOVIE_API_URL
 
     /**
      * Connection and socket timeout in seconds.
