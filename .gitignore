@@ -1,0 +1,39 @@
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+build/
+app/build/
+
+# Gradle files
+.gradle/
+buildOutput/
+
+# IntelliJ IDEA / Android Studio
+*.iml
+.idea/
+.idea/libraries
+.idea/modules.xml
+.idea/workspace.xml
+.idea/caches
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Explicitly include local.properties as requested
+!local.properties
