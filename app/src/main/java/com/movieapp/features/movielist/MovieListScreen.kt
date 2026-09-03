@@ -52,6 +52,15 @@ import com.movieapp.theme.NeoYellow
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoShadow
 
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.foundation.layout.size
+import com.movieapp.theme.Heroicons
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieListScreen(
     viewModel: MovieListViewModel,
@@ -60,6 +69,20 @@ fun MovieListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val gridState = rememberLazyGridState()
+
+    // Pull-to-refresh state
+    val pullRefreshState = rememberPullToRefreshState()
+    if (pullRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            viewModel.refresh()
+        }
+    }
+
+    LaunchedEffect(uiState.isRefreshing) {
+        if (!uiState.isRefreshing) {
+            pullRefreshState.endRefresh()
+        }
+    }
 
     // Detect scrolling near bottom to trigger pagination (US-03)
     val shouldPaginate by remember {
@@ -76,93 +99,107 @@ fun MovieListScreen(
         }
     }
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .nestedScroll(pullRefreshState.nestedScrollConnection)
     ) {
-        // Segmented Tabs: Movies vs TV Shows (US-01)
-        CategorySegmentedTabs(
-            selectedCategory = uiState.activeCategory,
-            onCategorySelected = { viewModel.selectCategory(it) }
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            // Segmented Tabs: Movies vs TV Shows (US-01)
+            CategorySegmentedTabs(
+                selectedCategory = uiState.activeCategory,
+                onCategorySelected = { viewModel.selectCategory(it) }
+            )
 
-        Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-        // Initial Loading State
-        if (uiState.isInitialLoading && uiState.currentDisplayList.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = NeoBlack, strokeWidth = 3.dp)
-            }
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                state = gridState,
-                contentPadding = PaddingValues(bottom = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                items(
-                    items = uiState.currentDisplayList,
-                    key = { item -> "${item.id}_${item.slug}_${item.displayTitle}" }
-                ) { item ->
-                    MovieGridCard(
-                        item = item,
-                        onClick = {
-                            val slug = item.slug ?: item.id.toString()
-                            val isTv = uiState.activeCategory == MediaCategory.TV_SHOWS
-                            onTitleClick(slug, isTv)
-                        }
-                    )
+            // Initial Loading State
+            if (uiState.isInitialLoading && uiState.currentDisplayList.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = NeoBlack, strokeWidth = 3.dp)
                 }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    state = gridState,
+                    contentPadding = PaddingValues(bottom = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(
+                        items = uiState.currentDisplayList,
+                        key = { item -> "${item.id}_${item.slug}_${item.displayTitle}" }
+                    ) { item ->
+                        MovieGridCard(
+                            item = item,
+                            onClick = {
+                                val slug = item.slug ?: item.id.toString()
+                                val isTv = uiState.activeCategory == MediaCategory.TV_SHOWS
+                                onTitleClick(slug, isTv)
+                            }
+                        )
+                    }
 
-                // Inline Pagination Progress Indicator
-                if (uiState.isPaginating) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(color = NeoBlack, strokeWidth = 3.dp)
+                    // Inline Pagination Progress Indicator
+                    if (uiState.isPaginating) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(color = NeoBlack, strokeWidth = 3.dp)
+                            }
                         }
+                    }
+                }
+            }
+
+            // Inline Error Notice & Retry Button
+            uiState.errorMessage?.let { errorText ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .neoShadow(offsetX = 3.dp, offsetY = 3.dp)
+                        .background(NeoErrorBackground, RoundedCornerShape(12.dp))
+                        .neoBorder(shape = RoundedCornerShape(12.dp))
+                        .padding(14.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = errorText,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = NeoBlack
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        NeoButton(
+                            onClick = { viewModel.retry() },
+                            text = "Try Again",
+                            backgroundColor = NeoYellow
+                        )
                     }
                 }
             }
         }
 
-        // Inline Error Notice & Retry Button
-        uiState.errorMessage?.let { errorText ->
-            Spacer(modifier = Modifier.height(8.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .neoShadow(offsetX = 3.dp, offsetY = 3.dp)
-                    .background(NeoErrorBackground, RoundedCornerShape(12.dp))
-                    .neoBorder(shape = RoundedCornerShape(12.dp))
-                    .padding(14.dp)
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = errorText,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = NeoBlack
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    NeoButton(
-                        onClick = { viewModel.retry() },
-                        text = "Try Again",
-                        backgroundColor = NeoYellow
-                    )
-                }
-            }
-        }
+        // Pull to refresh indicator
+        PullToRefreshContainer(
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter),
+            containerColor = NeoYellow,
+            contentColor = NeoBlack
+        )
     }
 }
 
@@ -262,16 +299,24 @@ private fun MovieGridCard(
                 modifier = Modifier.fillMaxSize()
             )
 
-            // Rating Badge
+            // Rating Badge with Heroicon Star
             if (item.rating != null && item.rating > 0.0) {
-                Box(
+                Row(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                         .neoBorder(width = 2.dp, shape = RoundedCornerShape(6.dp))
                         .background(NeoYellow, RoundedCornerShape(6.dp))
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                        .padding(horizontal = 6.dp, vertical = 3.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(3.dp)
                 ) {
+                    Icon(
+                        imageVector = Heroicons.Star,
+                        contentDescription = null,
+                        tint = NeoBlack,
+                        modifier = Modifier.size(11.dp)
+                    )
                     Text(
                         text = item.formattedRating,
                         fontWeight = FontWeight.Black,

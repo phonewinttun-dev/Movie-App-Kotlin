@@ -3,6 +3,7 @@ package com.movieapp.features.movielist
 import com.movieapp.network.MovieApiService
 import com.movieapp.network.NetworkClient
 import com.movieapp.util.Resource
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -12,7 +13,8 @@ import kotlinx.coroutines.flow.flowOn
  * Single source of truth for retrieving movie and TV show catalog feeds.
  */
 class MovieListRepository(
-    private val apiService: MovieApiService = NetworkClient.apiService
+    private val apiService: MovieApiService = NetworkClient.apiService,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
     /**
@@ -26,7 +28,7 @@ class MovieListRepository(
         } catch (e: Exception) {
             emit(Resource.Error("Unable to load movies right now. Please check your internet connection and try again."))
         }
-    }.flowOn(Dispatchers.IO)
+    }.flowOn(ioDispatcher)
 
     /**
      * Retrieves a page of television shows from the remote service.
@@ -39,5 +41,5 @@ class MovieListRepository(
         } catch (e: Exception) {
             emit(Resource.Error("Unable to load TV shows right now. Please check your internet connection and try again."))
         }
-    }.flowOn(Dispatchers.IO)
+    }.flowOn(ioDispatcher)
 }

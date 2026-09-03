@@ -26,6 +26,7 @@ data class MovieListUiState(
     val tvShows: List<MovieDTO> = emptyList(),
     val isInitialLoading: Boolean = false,
     val isPaginating: Boolean = false,
+    val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
     val moviesPage: Int = 1,
     val tvShowsPage: Int = 1,
@@ -56,6 +57,19 @@ class MovieListViewModel(
     private fun loadInitialFeeds() {
         fetchMoviesPage(1)
         fetchTvShowsPage(1)
+    }
+
+    /**
+     * Pull-to-refresh: resets page to 1 and reloads current active category.
+     */
+    fun refresh() {
+        val state = _uiState.value
+        _uiState.update { it.copy(isRefreshing = true, errorMessage = null) }
+        if (state.activeCategory == MediaCategory.MOVIES) {
+            fetchMoviesPage(1, isRefresh = true)
+        } else {
+            fetchTvShowsPage(1, isRefresh = true)
+        }
     }
 
     /**
@@ -94,13 +108,14 @@ class MovieListViewModel(
         }
     }
 
-    private fun fetchMoviesPage(page: Int) {
+    private fun fetchMoviesPage(page: Int, isRefresh: Boolean = false) {
         viewModelScope.launch {
             repository.getMovies(page).collect { resource ->
                 when (resource) {
                     is Resource.Loading -> {
                         _uiState.update {
-                            if (page == 1 && it.movies.isEmpty()) it.copy(isInitialLoading = true, errorMessage = null)
+                            if (isRefresh) it.copy(isRefreshing = true, errorMessage = null)
+                            else if (page == 1 && it.movies.isEmpty()) it.copy(isInitialLoading = true, errorMessage = null)
                             else it.copy(isPaginating = true, errorMessage = null)
                         }
                     }
@@ -108,13 +123,18 @@ class MovieListViewModel(
                         val response = resource.data
                         val newItems = response?.safeItems ?: emptyList()
                         _uiState.update { current ->
-                            val combined = if (page == 1) newItems else current.movies + newItems
+                            val combined = if (page == 1 || isRefresh) {
+                                newItems
+                            } else {
+                                (current.movies + newItems).distinctBy { "${it.id}_${it.slug}" }
+                            }
                             current.copy(
                                 movies = combined,
                                 moviesPage = page,
                                 moviesHasMore = response?.canLoadMore ?: (newItems.isNotEmpty()),
                                 isInitialLoading = false,
                                 isPaginating = false,
+                                isRefreshing = false,
                                 errorMessage = null
                             )
                         }
@@ -124,6 +144,7 @@ class MovieListViewModel(
                             it.copy(
                                 isInitialLoading = false,
                                 isPaginating = false,
+                                isRefreshing = false,
                                 errorMessage = resource.message
                             )
                         }
@@ -133,13 +154,14 @@ class MovieListViewModel(
         }
     }
 
-    private fun fetchTvShowsPage(page: Int) {
+    private fun fetchTvShowsPage(page: Int, isRefresh: Boolean = false) {
         viewModelScope.launch {
             repository.getTvShows(page).collect { resource ->
                 when (resource) {
                     is Resource.Loading -> {
                         _uiState.update {
-                            if (page == 1 && it.tvShows.isEmpty()) it.copy(isInitialLoading = true, errorMessage = null)
+                            if (isRefresh) it.copy(isRefreshing = true, errorMessage = null)
+                            else if (page == 1 && it.tvShows.isEmpty()) it.copy(isInitialLoading = true, errorMessage = null)
                             else it.copy(isPaginating = true, errorMessage = null)
                         }
                     }
@@ -147,13 +169,18 @@ class MovieListViewModel(
                         val response = resource.data
                         val newItems = response?.safeItems ?: emptyList()
                         _uiState.update { current ->
-                            val combined = if (page == 1) newItems else current.tvShows + newItems
+                            val combined = if (page == 1 || isRefresh) {
+                                newItems
+                            } else {
+                                (current.tvShows + newItems).distinctBy { "${it.id}_${it.slug}" }
+                            }
                             current.copy(
                                 tvShows = combined,
                                 tvShowsPage = page,
                                 tvShowsHasMore = response?.canLoadMore ?: (newItems.isNotEmpty()),
                                 isInitialLoading = false,
                                 isPaginating = false,
+                                isRefreshing = false,
                                 errorMessage = null
                             )
                         }
@@ -163,6 +190,7 @@ class MovieListViewModel(
                             it.copy(
                                 isInitialLoading = false,
                                 isPaginating = false,
+                                isRefreshing = false,
                                 errorMessage = resource.message
                             )
                         }
