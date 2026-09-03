@@ -84,6 +84,16 @@ fun SearchScreen(
                 .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Heroicon Search Leading Icon
+            androidx.compose.material3.Icon(
+                imageVector = com.movieapp.theme.Heroicons.Search,
+                contentDescription = null,
+                tint = NeoBlack,
+                modifier = Modifier.size(18.dp)
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
             BasicTextField(
                 value = uiState.query,
                 onValueChange = { viewModel.onQueryChange(it) },
@@ -121,15 +131,26 @@ fun SearchScreen(
                             role = Role.Button
                             contentDescription = "Clear search text"
                         }
-                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "Clear",
-                        color = NeoWhite,
-                        fontWeight = FontWeight.Black,
-                        fontSize = 11.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        androidx.compose.material3.Icon(
+                            imageVector = com.movieapp.theme.Heroicons.Clear,
+                            contentDescription = null,
+                            tint = NeoWhite,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = "Clear",
+                            color = NeoWhite,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 11.sp
+                        )
+                    }
                 }
             }
         }

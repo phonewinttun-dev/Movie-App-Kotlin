@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -79,12 +81,23 @@ fun MovieDetailScreen(
                     .padding(horizontal = 14.dp, vertical = 10.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Back to List",
-                    fontWeight = FontWeight.Black,
-                    fontSize = 12.sp,
-                    color = NeoBlack
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    androidx.compose.material3.Icon(
+                        imageVector = com.movieapp.theme.Heroicons.ArrowLeft,
+                        contentDescription = null,
+                        tint = NeoBlack,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = "Back to List",
+                        fontWeight = FontWeight.Black,
+                        fontSize = 12.sp,
+                        color = NeoBlack
+                    )
+                }
             }
 
             val badgeText = if (uiState.isTvShow) "TV Show" else "Movie"
@@ -215,12 +228,23 @@ fun MovieDetailScreen(
                                 .neoBorder(shape = RoundedCornerShape(10.dp))
                                 .padding(horizontal = 10.dp, vertical = 6.dp)
                         ) {
-                            Text(
-                                text = detail.formattedRating,
-                                fontWeight = FontWeight.Black,
-                                fontSize = 12.sp,
-                                color = NeoBlack
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                androidx.compose.material3.Icon(
+                                    imageVector = com.movieapp.theme.Heroicons.Star,
+                                    contentDescription = null,
+                                    tint = NeoBlack,
+                                    modifier = Modifier.size(13.dp)
+                                )
+                                Text(
+                                    text = detail.formattedRating,
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 12.sp,
+                                    color = NeoBlack
+                                )
+                            }
                         }
                     }
 
@@ -293,11 +317,13 @@ fun MovieDetailScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         // Season Selector Tabs
-                        LazyRow(
+                        Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState())
                         ) {
-                            items(detail.safeSeasons) { season ->
+                            detail.safeSeasons.forEach { season ->
                                 val isSelected = season.seasonNumber == uiState.selectedSeasonNumber
                                 val bg = if (isSelected) NeoBlack else NeoWhite
                                 val textCol = if (isSelected) NeoWhite else NeoBlack

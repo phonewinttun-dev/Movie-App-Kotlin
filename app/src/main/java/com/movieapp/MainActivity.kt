@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -189,12 +190,23 @@ fun TopAppBarNeobrutalist(
                 .padding(horizontal = 12.dp, vertical = 8.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "Search",
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Black,
-                color = NeoBlack
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = com.movieapp.theme.Heroicons.Search,
+                    contentDescription = null,
+                    tint = NeoBlack,
+                    modifier = Modifier.size(15.dp)
+                )
+                Text(
+                    text = "Search",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Black,
+                    color = NeoBlack
+                )
+            }
         }
     }
 }

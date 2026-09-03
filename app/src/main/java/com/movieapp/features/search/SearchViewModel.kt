@@ -35,7 +35,8 @@ data class SearchUiState(
  */
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class SearchViewModel(
-    private val repository: SearchRepository = SearchRepository()
+    private val repository: SearchRepository = SearchRepository(),
+    debounceTimeoutMillis: Long = 400L
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -45,7 +46,7 @@ class SearchViewModel(
     init {
         viewModelScope.launch {
             _searchQuery
-                .debounce(400L)
+                .debounce(debounceTimeoutMillis)
                 .distinctUntilChanged()
                 .flatMapLatest { query ->
                     val cleanQuery = query.trim()
