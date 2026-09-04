@@ -162,7 +162,7 @@ fun BookmarkScreen(
                             onClick = { onTitleClick(movie.slug, movie.isTvShow) },
                             onRemoveClick = {
                                 coroutineScope.launch {
-                                    dao.delete(movie)
+                                    dao.updateBookmarkStatus(slug = movie.slug, isBookmarked = false, bookmarkedAt = 0L)
                                     val toastMsg = LocalizationManager.getString("bookmark_removed")
                                     Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
                                 }
@@ -189,7 +189,9 @@ private fun BookmarkMovieCard(
     onRemoveClick: () -> Unit
 ) {
     val neoColors = MaterialTheme.neoColors
-    val a11yLabel = "${item.title}, ${item.releaseYear ?: ""}, ${if (item.isTvShow) t("badge_tv_show") else t("badge_movie")}"
+    val badgeLabel = if (item.isTvShow) t("badge_tv_show") else t("badge_movie")
+    val a11yLabel = "${item.title}, ${item.releaseYear ?: ""}, $badgeLabel"
+    val removeBookmarkLabel = "${t("remove_bookmark")}: ${item.title}"
 
     Column(
         modifier = Modifier
@@ -229,7 +231,7 @@ private fun BookmarkMovieCard(
                     .clickable(onClick = onRemoveClick)
                     .semantics {
                         role = Role.Button
-                        contentDescription = "${t("remove_bookmark")}: ${item.title}"
+                        contentDescription = removeBookmarkLabel
                     }
                     .padding(6.dp),
                 contentAlignment = Alignment.Center
