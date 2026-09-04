@@ -14,19 +14,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 
 /**
- * Global theme controller managing Theme Mode (Light / Dark)
- * and independent Night Light eye-comfort toggle (ON / OFF).
+ * Global theme controller managing Theme Mode (Light / Dark).
+ * Both Light and Dark themes natively support eye-comfort / night light tones.
  */
 object AppThemeController {
     var isDarkMode by mutableStateOf(false)
-    var isNightLightEnabled by mutableStateOf(false)
 
     fun toggleDarkMode() {
         isDarkMode = !isDarkMode
-    }
-
-    fun toggleNightLight() {
-        isNightLightEnabled = !isNightLightEnabled
     }
 }
 
@@ -40,15 +35,9 @@ val MaterialTheme.neoColors: NeoColors
 @Composable
 fun MovieAppTheme(
     darkTheme: Boolean = AppThemeController.isDarkMode,
-    nightLight: Boolean = AppThemeController.isNightLightEnabled,
     content: @Composable () -> Unit
 ) {
-    val neoColors = when {
-        !darkTheme && !nightLight -> LightNeoColors
-        !darkTheme && nightLight -> LightNightNeoColors
-        darkTheme && !nightLight -> DarkNeoColors
-        else -> DarkNightNeoColors
-    }
+    val neoColors = if (darkTheme) DarkNeoColors else LightNeoColors
 
     val colorScheme = if (darkTheme) {
         darkColorScheme(

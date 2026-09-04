@@ -35,24 +35,8 @@ data class NeoColors(
     val errorBackground: Color
 )
 
-// 1. Light Mode + Night Light OFF (Classic Neobrutalism)
+// 1. Light Mode (Warm Eye-Comfort / Night-Light Supportive)
 val LightNeoColors = NeoColors(
-    background = Color(0xFFF4F0EA),
-    surface = Color(0xFFFFFFFF),
-    surfaceMuted = Color(0xFFEBE6DC),
-    textPrimary = Color(0xFF000000),
-    textSecondary = Color(0xFF555555),
-    border = Color(0xFF000000),
-    shadow = Color(0xFF000000),
-    primary = NeoYellow,
-    secondary = NeoPink,
-    tertiary = NeoCyan,
-    error = NeoError,
-    errorBackground = NeoErrorBackground
-)
-
-// 2. Light Mode + Night Light ON (Warm Amber Eye-Comfort Light)
-val LightNightNeoColors = NeoColors(
     background = Color(0xFFFBF3E4),
     surface = Color(0xFFFFFDF7),
     surfaceMuted = Color(0xFFF2E6D0),
@@ -61,30 +45,14 @@ val LightNightNeoColors = NeoColors(
     border = Color(0xFF2D2319),
     shadow = Color(0xFF3D2E1E),
     primary = Color(0xFFF5D020),
-    secondary = Color(0xFFF28292),
-    tertiary = Color(0xFF64CFDE),
+    secondary = NeoPink,
+    tertiary = NeoCyan,
     error = Color(0xFFC62828),
     errorBackground = Color(0xFFFFEBEE)
 )
 
-// 3. Dark Mode + Night Light OFF (Cyber Neobrutalism Dark)
+// 2. Dark Mode (Warm Eye-Comfort / Night-Light Supportive)
 val DarkNeoColors = NeoColors(
-    background = Color(0xFF121214),
-    surface = Color(0xFF1E1E24),
-    surfaceMuted = Color(0xFF2A2A33),
-    textPrimary = Color(0xFFFFFFFF),
-    textSecondary = Color(0xFFA0A0AB),
-    border = Color(0xFFFFFFFF),
-    shadow = Color(0xFF000000),
-    primary = NeoYellow,
-    secondary = NeoPink,
-    tertiary = NeoCyan,
-    error = Color(0xFFFF5252),
-    errorBackground = Color(0xFF2E1A1D)
-)
-
-// 4. Dark Mode + Night Light ON (Warm Eye-Comfort Dark)
-val DarkNightNeoColors = NeoColors(
     background = Color(0xFF1A1612),
     surface = Color(0xFF26201A),
     surfaceMuted = Color(0xFF332A22),

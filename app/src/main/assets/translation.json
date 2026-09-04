@@ -1,6 +1,6 @@
 {
   "en": {
-    "app_title": "Movie Catalog",
+    "app_title": "YoteShinLog",
     "app_subtitle": "Find what to watch",
     "search_btn": "Search",
     "nav_browse": "Browse",
@@ -19,21 +19,21 @@
     "badge_movie": "Movie",
     "badge_tv_show": "TV Show",
     "search_heading": "Look for a movie or show",
-    "search_placeholder": "Type a title or topic...",
+    "search_placeholder": "Type a title or topic",
     "search_note": "Results update automatically as you type.",
     "search_clear": "Clear",
     "search_prompt_title": "Search by Title",
     "search_prompt_desc": "Type in the box above to find movies or television series.",
     "search_empty_title": "No Matches Found",
-    "search_empty_desc": "We could not find any titles matching your search. Check your spelling or search for another title.",
+    "search_empty_desc": "Could not find any titles matching your search.",
     "back_to_list": "Back to List",
     "story_summary": "Story Summary",
-    "no_summary": "No summary is currently available for this title.",
+    "no_summary": "No summary is currently available.",
     "get_download_links": "Get Download Links (%d)",
     "choose_season_episode": "Choose Season and Episode",
     "download_episode": "Download Episode",
     "download_links": "Download Links",
-    "no_download_links": "No download links available for this title yet.",
+    "no_download_links": "No download links available yet.",
     "download_action": "Download",
     "telegram_action": "Telegram",
     "copy_link": "Copy Link",
@@ -50,10 +50,14 @@
     "resolving_link": "Bypassing ads & preparing download...",
     "download_full_season": "Download Season (%d eps)",
     "download_all_episodes": "Download All Episodes (%s)",
-    "open_in_telegram": "Open in Telegram"
+    "open_in_telegram": "Open in Telegram",
+    "add_bookmark": "Add to bookmarks",
+    "remove_bookmark": "Remove from bookmarks",
+    "copy_all_links": "Copy All Links",
+    "all_links_copied": "All episode links copied to clipboard"
   },
   "my": {
-    "app_title": "ရုပ်ရှင် ကတ်တလောက်",
+    "app_title": "ရုပ်ရှင်ကတ်တလောက်",
     "app_subtitle": "ကြည့်ရှုလိုရာ ရှာဖွေပါ",
     "search_btn": "ရှာဖွေမည်",
     "nav_browse": "ရှာဖွေကြည့်ရှုရန်",
@@ -103,6 +107,10 @@
     "resolving_link": "ကြော်ငြာများကို ကျော်လွှားပြီး ပြင်ဆင်နေပါသည်...",
     "download_full_season": "Season တစ်ခုလုံး ဒေါင်းလုဒ် (%d ပိုင်း)",
     "download_all_episodes": "အပိုင်းအားလုံး ဒေါင်းလုဒ်ဆွဲမည် (%s)",
-    "open_in_telegram": "Telegram တွင် ဖွင့်ကြည့်မည်"
+    "open_in_telegram": "Telegram တွင် ဖွင့်ကြည့်မည်",
+    "add_bookmark": "သိမ်းဆည်းမည်",
+    "remove_bookmark": "သိမ်းဆည်းထားသည်မှ ဖယ်ရှားမည်",
+    "copy_all_links": "လင့်ခ်အားလုံး ကူးယူမည်",
+    "all_links_copied": "လင့်ခ်အားလုံး ကူးယူပြီးပါပြီ"
   }
 }

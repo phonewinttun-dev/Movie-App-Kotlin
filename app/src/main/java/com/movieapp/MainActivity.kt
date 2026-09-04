@@ -175,7 +175,6 @@ fun TopAppBarNeobrutalist(
 ) {
     val neoColors = MaterialTheme.neoColors
     val isDark = AppThemeController.isDarkMode
-    val isNightLight = AppThemeController.isNightLightEnabled
     val currentLang = LocalizationManager.currentLanguage
 
     Row(
@@ -204,7 +203,7 @@ fun TopAppBarNeobrutalist(
             )
         }
 
-        // Quick Controls: Theme, Night Light, Language, Search (Vector Icons Only, No Emojis)
+        // Quick Controls: Theme, Language, Search (Vector Icons Only)
         Row(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -227,30 +226,6 @@ fun TopAppBarNeobrutalist(
                 Icon(
                     imageVector = if (isDark) NeubrutalismIcons.LightMode else NeubrutalismIcons.DarkMode,
                     contentDescription = if (isDark) t("theme_light") else t("theme_dark"),
-                    tint = neoColors.textPrimary,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-
-            // Night Light Eye-Comfort Toggle (Dual-mode support for both Light & Dark)
-            val nightLightBg = if (isNightLight) neoColors.secondary else neoColors.surface
-            Box(
-                modifier = Modifier
-                    .defaultMinSize(minWidth = 38.dp, minHeight = 38.dp)
-                    .neoShadow(offsetX = 2.dp, offsetY = 2.dp, color = neoColors.shadow, shape = RoundedCornerShape(8.dp))
-                    .background(nightLightBg, RoundedCornerShape(8.dp))
-                    .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(8.dp))
-                    .clickable { AppThemeController.toggleNightLight() }
-                    .semantics {
-                        role = Role.Button
-                        selected = isNightLight
-                    }
-                    .padding(8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = NeubrutalismIcons.NightLight,
-                    contentDescription = if (isNightLight) t("night_light_on") else t("night_light_off"),
                     tint = neoColors.textPrimary,
                     modifier = Modifier.size(18.dp)
                 )
