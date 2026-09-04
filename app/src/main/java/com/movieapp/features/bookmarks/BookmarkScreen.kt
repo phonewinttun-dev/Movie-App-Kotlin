@@ -1,0 +1,245 @@
+package com.movieapp.features.bookmarks
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import com.movieapp.MovieApplication
+import com.movieapp.data.local.MovieEntity
+import com.movieapp.theme.CartoonFontFamily
+import com.movieapp.theme.NeubrutalismIcons
+import com.movieapp.theme.TypewriterFontFamily
+import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.neoBorder
+import com.movieapp.theme.neoColors
+import com.movieapp.theme.neoShadow
+import com.movieapp.util.t
+
+@Composable
+fun BookmarkScreen(
+    onTitleClick: (slug: String, isTvShow: Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val neoColors = MaterialTheme.neoColors
+    val dao = MovieApplication.instance.database.movieDao()
+    val bookmarkedMovies by dao.getBookmarkedMovies().collectAsStateWithLifecycle(initialValue = emptyList())
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        // Heading
+        Text(
+            text = t("bookmarks_title"),
+            fontFamily = CartoonFontFamily,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            color = neoColors.textPrimary
+        )
+        Text(
+            text = t("bookmarks_subtitle"),
+            fontFamily = YoeshinFontFamily,
+            fontSize = 12.sp,
+            color = neoColors.textSecondary,
+            modifier = Modifier.padding(top = 2.dp, bottom = 14.dp)
+        )
+
+        if (bookmarkedMovies.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(20.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .neoShadow(offsetX = 3.dp, offsetY = 3.dp, color = neoColors.shadow, shape = RoundedCornerShape(12.dp))
+                        .background(neoColors.surface, RoundedCornerShape(12.dp))
+                        .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(12.dp))
+                        .padding(24.dp)
+                ) {
+                    Icon(
+                        imageVector = NeubrutalismIcons.BookmarkBorder,
+                        contentDescription = null,
+                        tint = neoColors.textSecondary,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = t("bookmarks_empty_title"),
+                        fontFamily = CartoonFontFamily,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = neoColors.textPrimary
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = t("bookmarks_empty_desc"),
+                        fontFamily = YoeshinFontFamily,
+                        fontSize = 13.sp,
+                        color = neoColors.textSecondary,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(bottom = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(bookmarkedMovies, key = { it.slug }) { movie ->
+                    BookmarkMovieCard(
+                        item = movie,
+                        onClick = { onTitleClick(movie.slug, movie.isTvShow) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BookmarkMovieCard(
+    item: MovieEntity,
+    onClick: () -> Unit
+) {
+    val neoColors = MaterialTheme.neoColors
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .neoShadow(offsetX = 3.dp, offsetY = 3.dp, color = neoColors.shadow, shape = RoundedCornerShape(12.dp))
+            .background(neoColors.surface, RoundedCornerShape(12.dp))
+            .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .semantics { role = Role.Button }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(2f / 3f)
+                .background(neoColors.surfaceMuted)
+        ) {
+            AsyncImage(
+                model = item.poster,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            // Rating badge if available
+            item.rating?.takeIf { it.isNotBlank() }?.let { rating ->
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(6.dp))
+                        .background(neoColors.primary, RoundedCornerShape(6.dp))
+                        .padding(horizontal = 6.dp, vertical = 3.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                ) {
+                    Icon(
+                        imageVector = NeubrutalismIcons.Star,
+                        contentDescription = null,
+                        tint = neoColors.textPrimary,
+                        modifier = Modifier.size(11.dp)
+                    )
+                    Text(
+                        text = rating,
+                        fontFamily = TypewriterFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 10.sp,
+                        color = neoColors.textPrimary
+                    )
+                }
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+        ) {
+            Text(
+                text = item.title,
+                fontFamily = CartoonFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 13.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = neoColors.textPrimary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = item.releaseYear ?: "Unknown",
+                    fontFamily = TypewriterFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    color = neoColors.textSecondary
+                )
+                val typeLabel = if (item.isTvShow) t("badge_tv_show") else t("badge_movie")
+                val typeBg = if (item.isTvShow) neoColors.secondary else neoColors.tertiary
+                Box(
+                    modifier = Modifier
+                        .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(4.dp))
+                        .background(typeBg, RoundedCornerShape(4.dp))
+                        .padding(horizontal = 4.dp, vertical = 1.dp)
+                ) {
+                    Text(
+                        text = typeLabel,
+                        fontFamily = TypewriterFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 9.sp,
+                        color = neoColors.textPrimary
+                    )
+                }
+            }
+        }
+    }
+}

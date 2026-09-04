@@ -14,13 +14,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -29,7 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -42,23 +48,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.movieapp.theme.NeoBlack
+import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.NeoButton
-import com.movieapp.theme.NeoCyan
-import com.movieapp.theme.NeoErrorBackground
-import com.movieapp.theme.NeoPink
-import com.movieapp.theme.NeoWhite
-import com.movieapp.theme.NeoYellow
+import com.movieapp.theme.NeubrutalismIcons
+import com.movieapp.theme.TypewriterFontFamily
+import com.movieapp.theme.YoeshinFontFamily
 import com.movieapp.theme.neoBorder
+import com.movieapp.theme.neoColors
 import com.movieapp.theme.neoShadow
-
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.foundation.layout.size
-import com.movieapp.theme.Heroicons
+import com.movieapp.util.t
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,6 +67,7 @@ fun MovieListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val gridState = rememberLazyGridState()
+    val neoColors = MaterialTheme.neoColors
 
     // Pull-to-refresh state
     val pullRefreshState = rememberPullToRefreshState()
@@ -117,14 +116,9 @@ fun MovieListScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Initial Loading State
+            // Initial Loading State with Skeleton Cards
             if (uiState.isInitialLoading && uiState.currentDisplayList.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = NeoBlack, strokeWidth = 3.dp)
-                }
+                com.movieapp.theme.MovieListFeedSkeleton(modifier = Modifier.weight(1f))
             } else {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
@@ -157,7 +151,7 @@ fun MovieListScreen(
                                     .padding(16.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                CircularProgressIndicator(color = NeoBlack, strokeWidth = 3.dp)
+                                CircularProgressIndicator(color = neoColors.primary, strokeWidth = 3.dp)
                             }
                         }
                     }
@@ -170,23 +164,25 @@ fun MovieListScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .neoShadow(offsetX = 3.dp, offsetY = 3.dp)
-                        .background(NeoErrorBackground, RoundedCornerShape(12.dp))
-                        .neoBorder(shape = RoundedCornerShape(12.dp))
+                        .neoShadow(offsetX = 3.dp, offsetY = 3.dp, color = neoColors.shadow)
+                        .background(neoColors.errorBackground, RoundedCornerShape(12.dp))
+                        .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(12.dp))
                         .padding(14.dp)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = errorText,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = NeoBlack
+                            fontFamily = YoeshinFontFamily,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = neoColors.textPrimary
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         NeoButton(
                             onClick = { viewModel.retry() },
-                            text = "Try Again",
-                            backgroundColor = NeoYellow
+                            text = t("try_again"),
+                            backgroundColor = neoColors.primary,
+                            contentColor = neoColors.textPrimary
                         )
                     }
                 }
@@ -197,8 +193,8 @@ fun MovieListScreen(
         PullToRefreshContainer(
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter),
-            containerColor = NeoYellow,
-            contentColor = NeoBlack
+            containerColor = neoColors.primary,
+            contentColor = neoColors.textPrimary
         )
     }
 }
@@ -211,22 +207,24 @@ private fun CategorySegmentedTabs(
     selectedCategory: MediaCategory,
     onCategorySelected: (MediaCategory) -> Unit
 ) {
+    val neoColors = MaterialTheme.neoColors
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .neoBorder(shape = RoundedCornerShape(14.dp))
-            .background(Color(0xFFEFECE6), RoundedCornerShape(14.dp))
+            .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(14.dp))
+            .background(neoColors.surfaceMuted, RoundedCornerShape(14.dp))
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         val categories = listOf(
-            MediaCategory.MOVIES to "Movies",
-            MediaCategory.TV_SHOWS to "TV Shows"
+            MediaCategory.MOVIES to t("category_movies"),
+            MediaCategory.TV_SHOWS to t("category_tv_shows")
         )
 
         categories.forEach { (category, label) ->
             val isSelected = selectedCategory == category
-            val bg = if (isSelected) NeoYellow else Color.Transparent
+            val bg = if (isSelected) neoColors.primary else neoColors.surfaceMuted
             val shadowOffset = if (isSelected) 3.dp else 0.dp
 
             Box(
@@ -236,9 +234,9 @@ private fun CategorySegmentedTabs(
                     .then(
                         if (isSelected) {
                             Modifier
-                                .neoShadow(offsetX = shadowOffset, offsetY = shadowOffset, shape = RoundedCornerShape(10.dp))
+                                .neoShadow(offsetX = shadowOffset, offsetY = shadowOffset, color = neoColors.shadow, shape = RoundedCornerShape(10.dp))
                                 .background(bg, RoundedCornerShape(10.dp))
-                                .neoBorder(shape = RoundedCornerShape(10.dp))
+                                .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(10.dp))
                         } else {
                             Modifier
                         }
@@ -253,9 +251,10 @@ private fun CategorySegmentedTabs(
             ) {
                 Text(
                     text = label,
-                    fontWeight = FontWeight.Black,
-                    fontSize = 13.sp,
-                    color = NeoBlack
+                    fontFamily = CartoonFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    color = neoColors.textPrimary
                 )
             }
         }
@@ -270,14 +269,15 @@ private fun MovieGridCard(
     item: MovieDTO,
     onClick: () -> Unit
 ) {
+    val neoColors = MaterialTheme.neoColors
     val a11yLabel = "${item.displayTitle}, released in ${item.displayYear}, rating ${item.formattedRating} out of 10"
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .neoShadow(offsetX = 4.dp, offsetY = 4.dp, shape = RoundedCornerShape(12.dp))
-            .background(NeoWhite, RoundedCornerShape(12.dp))
-            .neoBorder(shape = RoundedCornerShape(12.dp))
+            .neoShadow(offsetX = 3.dp, offsetY = 3.dp, color = neoColors.shadow, shape = RoundedCornerShape(12.dp))
+            .background(neoColors.surface, RoundedCornerShape(12.dp))
+            .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(12.dp))
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
             .semantics {
@@ -290,39 +290,40 @@ private fun MovieGridCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(2f / 3f)
-                .background(Color(0xFFE0E0E0))
+                .background(neoColors.surfaceMuted)
         ) {
             AsyncImage(
                 model = item.poster,
-                contentDescription = null, // Announced via card container
+                contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
 
-            // Rating Badge with Heroicon Star
+            // Rating Badge with Star Icon
             val itemRating = item.rating
             if (itemRating != null && itemRating > 0.0) {
                 Row(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
-                        .neoBorder(width = 2.dp, shape = RoundedCornerShape(6.dp))
-                        .background(NeoYellow, RoundedCornerShape(6.dp))
+                        .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(6.dp))
+                        .background(neoColors.primary, RoundedCornerShape(6.dp))
                         .padding(horizontal = 6.dp, vertical = 3.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(3.dp)
                 ) {
                     Icon(
-                        imageVector = Heroicons.Star,
+                        imageVector = NeubrutalismIcons.Star,
                         contentDescription = null,
-                        tint = NeoBlack,
+                        tint = neoColors.textPrimary,
                         modifier = Modifier.size(11.dp)
                     )
                     Text(
                         text = item.formattedRating,
-                        fontWeight = FontWeight.Black,
+                        fontFamily = TypewriterFontFamily,
+                        fontWeight = FontWeight.Bold,
                         fontSize = 10.sp,
-                        color = NeoBlack
+                        color = neoColors.textPrimary
                     )
                 }
             }
@@ -336,11 +337,12 @@ private fun MovieGridCard(
         ) {
             Text(
                 text = item.displayTitle,
-                fontWeight = FontWeight.Black,
-                fontSize = 12.sp,
+                fontFamily = CartoonFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 13.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                color = NeoBlack
+                color = neoColors.textPrimary
             )
             Spacer(modifier = Modifier.height(4.dp))
             Row(
@@ -350,23 +352,26 @@ private fun MovieGridCard(
             ) {
                 Text(
                     text = item.displayYear,
+                    fontFamily = TypewriterFontFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 11.sp,
-                    color = Color(0xFF555555)
+                    color = neoColors.textSecondary
                 )
-                val typeLabel = if (item.mediaType?.contains("tv", ignoreCase = true) == true) "TV Show" else "Movie"
-                val typeBg = if (typeLabel == "TV Show") NeoPink else NeoCyan
+                val isTv = item.mediaType?.contains("tv", ignoreCase = true) == true
+                val typeLabel = if (isTv) t("badge_tv_show") else t("badge_movie")
+                val typeBg = if (isTv) neoColors.secondary else neoColors.tertiary
                 Box(
                     modifier = Modifier
-                        .neoBorder(width = 1.5.dp, shape = RoundedCornerShape(4.dp))
+                        .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(4.dp))
                         .background(typeBg, RoundedCornerShape(4.dp))
                         .padding(horizontal = 4.dp, vertical = 1.dp)
                 ) {
                     Text(
                         text = typeLabel,
-                        fontWeight = FontWeight.Black,
+                        fontFamily = TypewriterFontFamily,
+                        fontWeight = FontWeight.Bold,
                         fontSize = 9.sp,
-                        color = NeoBlack
+                        color = neoColors.textPrimary
                     )
                 }
             }
