@@ -5,6 +5,7 @@ package com.movieapp.navigation
  */
 sealed class Screen(val route: String) {
     object Feed : Screen("feed")
+    object Bookmarks : Screen("bookmarks")
     object Search : Screen("search")
     object Detail : Screen("detail/{slug}?isTv={isTv}") {
         fun createRoute(slug: String, isTvShow: Boolean): String {

@@ -97,7 +97,8 @@ fun NeoButton(
         Text(
             text = text,
             color = contentColor,
-            fontWeight = FontWeight.Black,
+            fontFamily = CartoonFontFamily,
+            fontWeight = FontWeight.Bold,
             fontSize = 13.sp,
             letterSpacing = 0.5.sp
         )
