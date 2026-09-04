@@ -37,3 +37,6 @@ Thumbs.db
 
 # Explicitly include local.properties as requested
 !local.properties
+
+.env
+local.properties

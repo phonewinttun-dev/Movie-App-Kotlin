@@ -2,14 +2,16 @@ package com.movieapp.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val NeoYellow = Color(0xFFFFE600)
+val NeoCyan = Color(0xFF00F0FF)
+val NeoPink = Color(0xFFFF6B8B)
+val NeoGreen = Color(0xFF00E599)
+val NeoBlack = Color(0xFF000000)
+val NeoWhite = Color(0xFFFFFFFF)
+val NeoBackground = Color(0xFFF4F0EA)
+val NeoCardBg = Color(0xFFFFFFFF)
+val NeoMuted = Color(0xFF4A4A4A)
+val NeoBorder = Color(0xFF000000)
+val NeoError = Color(0xFFD32F2F)
+val NeoErrorBackground = Color(0xFFFFEBEE)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
-
-val DarkBackground = Color(0xFF121212)
-val DarkSurface = Color(0xFF1E1E1E)
-val AccentGold = Color(0xFFFFD700)
