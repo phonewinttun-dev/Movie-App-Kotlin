@@ -130,17 +130,17 @@ class FeatureE2ETest {
         composeTestRule.onNodeWithText("Inception", substring = true).assertIsDisplayed()
 
         // Verify initially not bookmarked (in top bar)
-        composeTestRule.onNodeWithContentDescription("Added to bookmarks").assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("Add to bookmarks").assertIsDisplayed()
 
         // 2. Click Bookmark toggle button
-        composeTestRule.onNodeWithContentDescription("Added to bookmarks").performClick()
+        composeTestRule.onNodeWithContentDescription("Add to bookmarks").performClick()
         composeTestRule.waitUntil(timeoutMillis = 5000) {
             viewModel.uiState.value.isBookmarked
         }
         composeTestRule.waitForIdle()
 
         // Verify toggle state changed
-        composeTestRule.onNodeWithContentDescription("Removed from bookmarks").assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("Remove from bookmarks").assertIsDisplayed()
 
         // Verify in Room database that it is actually persisted
         val isBookmarkedInDb = runBlocking { movieDao.isBookmarked("inception-2010").first() }

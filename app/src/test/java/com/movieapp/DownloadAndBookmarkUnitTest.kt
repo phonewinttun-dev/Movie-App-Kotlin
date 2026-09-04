@@ -4,8 +4,11 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.movieapp.data.local.AppDatabase
+import com.movieapp.data.local.DownloadDao
+import com.movieapp.data.local.DownloadEntity
 import com.movieapp.data.local.MovieDao
 import com.movieapp.data.local.MovieEntity
+import com.movieapp.features.downloadlinks.DirectDownloadResolver
 import com.movieapp.features.downloadlinks.DownloadManagerHelper
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -26,6 +29,7 @@ class DownloadAndBookmarkUnitTest {
 
     private lateinit var database: AppDatabase
     private lateinit var movieDao: MovieDao
+    private lateinit var downloadDao: DownloadDao
 
     @Before
     fun setup() {
@@ -34,6 +38,7 @@ class DownloadAndBookmarkUnitTest {
             .allowMainThreadQueries()
             .build()
         movieDao = database.movieDao()
+        downloadDao = database.downloadDao()
     }
 
     @After
@@ -57,6 +62,86 @@ class DownloadAndBookmarkUnitTest {
         val webUrl3 = "https://t.me/my_channel"
         val tgLink3 = DownloadManagerHelper.convertToTelegramDeepLink(webUrl3)
         assertEquals("tg://resolve?domain=my_channel", tgLink3)
+    }
+
+    @Test
+    fun testDirectDownloadResolverMediaTypeValidation() {
+        // Video media streams must be accepted
+        assertTrue(DirectDownloadResolver.isMediaType("video/mp4"))
+        assertTrue(DirectDownloadResolver.isMediaType("video/x-matroska"))
+        assertTrue(DirectDownloadResolver.isMediaType("video/webm"))
+        assertTrue(DirectDownloadResolver.isMediaType("application/octet-stream"))
+        assertTrue(DirectDownloadResolver.isMediaType("binary/octet-stream"))
+
+        // HTML, plain text, and JSON error pages MUST be rejected (preventing 78 kB HTML downloads)
+        assertFalse(DirectDownloadResolver.isMediaType("text/html"))
+        assertFalse(DirectDownloadResolver.isMediaType("text/html; charset=UTF-8"))
+        assertFalse(DirectDownloadResolver.isMediaType("text/plain"))
+        assertFalse(DirectDownloadResolver.isMediaType("application/json"))
+        assertFalse(DirectDownloadResolver.isMediaType(""))
+    }
+
+    @Test
+    fun testDirectDownloadResolverKnownWebPortals() {
+        // Known web portals with HTML landing pages
+        assertTrue(DirectDownloadResolver.isKnownWebPortal("https://yoteshinportal.cc/hydra-2025-720-p-web-dl-mp-4"))
+        assertTrue(DirectDownloadResolver.isKnownWebPortal("https://usersdrive.com/sample999.html"))
+        assertTrue(DirectDownloadResolver.isKnownWebPortal("https://bioscopeapp.com/watch/123"))
+
+        // Direct media files
+        assertFalse(DirectDownloadResolver.isKnownWebPortal("https://cdn.example.com/movies/hydra_720p.mp4"))
+        assertFalse(DirectDownloadResolver.isKnownWebPortal("https://files.storage.com/media/barreda_1080p.mkv"))
+    }
+
+    @Test
+    fun testDownloadDaoOperations() = runBlocking {
+        val activeTask = DownloadEntity(
+            downloadId = 101L,
+            title = "Hydra",
+            movieSlug = "hydra-bjcl5wwm",
+            poster = "https://example.com/hydra.jpg",
+            fileName = "Hydra.mp4",
+            totalBytes = 650000000L,
+            downloadedBytes = 130000000L,
+            status = 2 // STATUS_RUNNING
+        )
+
+        // Insert active download task
+        downloadDao.insertOrUpdate(activeTask)
+
+        val activeList = downloadDao.getActiveDownloads().first()
+        assertEquals(1, activeList.size)
+        assertEquals("Hydra", activeList[0].title)
+        assertEquals(20, activeList[0].progressPercentage)
+        assertEquals("124.0 MB", activeList[0].formattedDownloadedSize)
+        assertTrue(activeList[0].isActive)
+        assertFalse(activeList[0].isCompleted)
+
+        // Update progress to 100% and STATUS_SUCCESSFUL (8)
+        downloadDao.updateProgress(
+            id = 101L,
+            downloadedBytes = 650000000L,
+            totalBytes = 650000000L,
+            status = 8,
+            completedAt = System.currentTimeMillis(),
+            fileUri = "content://downloads/my_downloads/101"
+        )
+
+        // Verify active downloads is now empty
+        val updatedActive = downloadDao.getActiveDownloads().first()
+        assertTrue(updatedActive.isEmpty())
+
+        // Verify completed downloads contains the task
+        val completedList = downloadDao.getCompletedDownloads().first()
+        assertEquals(1, completedList.size)
+        assertEquals("Hydra", completedList[0].title)
+        assertTrue(completedList[0].isCompleted)
+        assertEquals("content://downloads/my_downloads/101", completedList[0].fileUri)
+
+        // Delete download
+        downloadDao.deleteDownload(101L)
+        val afterDelete = downloadDao.getCompletedDownloads().first()
+        assertTrue(afterDelete.isEmpty())
     }
 
     @Test

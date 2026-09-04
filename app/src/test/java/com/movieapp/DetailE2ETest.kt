@@ -14,6 +14,8 @@ import com.movieapp.features.moviedetail.MovieDetailViewModel
 import com.movieapp.features.moviedetail.SeasonDTO
 import com.movieapp.network.MovieApiService
 import com.movieapp.theme.MovieAppTheme
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -72,6 +74,18 @@ class DetailE2ETest {
     private val testDispatcher = kotlinx.coroutines.test.UnconfinedTestDispatcher()
     private val repository = MovieDetailRepository(fakeApiService, testDispatcher)
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @org.junit.Before
+    fun setup() {
+        kotlinx.coroutines.Dispatchers.setMain(testDispatcher)
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @org.junit.After
+    fun teardown() {
+        kotlinx.coroutines.Dispatchers.resetMain()
+    }
+
     @Test
     fun detailDisplaysTitleMetadataAndSwitchesSeasons() {
         val viewModel = MovieDetailViewModel(repository)
@@ -88,6 +102,9 @@ class DetailE2ETest {
             }
         }
 
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            viewModel.uiState.value.detail != null
+        }
         composeTestRule.waitForIdle()
 
         // Verify Title and Metadata
