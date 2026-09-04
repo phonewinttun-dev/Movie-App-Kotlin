@@ -28,11 +28,11 @@ class MovieDetailRepository(
             if (data != null) {
                 emit(Resource.Success(data))
             } else {
-                emit(Resource.Error("Movie details could not be found."))
+                emit(Resource.Error("Movie details aren't available."))
             }
         } catch (e: Exception) {
-            val msg = e.localizedMessage?.takeIf { it.isNotBlank() } ?: "Network error"
-            emit(Resource.Error("Unable to load movie details ($msg). Please check your connection and try again."))
+            android.util.Log.e("MovieDetailRepository", "Failed to fetch movie detail: ${e.javaClass.simpleName}: ${e.message}", e)
+            emit(Resource.Error("Couldn't load movie details. Check your connection and try again."))
         }
     }.flowOn(ioDispatcher)
 
@@ -47,11 +47,11 @@ class MovieDetailRepository(
             if (data != null) {
                 emit(Resource.Success(data))
             } else {
-                emit(Resource.Error("Series details could not be found."))
+                emit(Resource.Error("Show details aren't available."))
             }
         } catch (e: Exception) {
-            val msg = e.localizedMessage?.takeIf { it.isNotBlank() } ?: "Network error"
-            emit(Resource.Error("Unable to load series details ($msg). Please check your connection and try again."))
+            android.util.Log.e("MovieDetailRepository", "Failed to fetch TV show detail: ${e.javaClass.simpleName}: ${e.message}", e)
+            emit(Resource.Error("Couldn't load show details. Check your connection and try again."))
         }
     }.flowOn(ioDispatcher)
 }
