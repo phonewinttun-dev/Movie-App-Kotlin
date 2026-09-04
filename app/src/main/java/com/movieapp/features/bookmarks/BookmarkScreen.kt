@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.movieapp.MovieApplication
+import com.movieapp.data.local.MovieDao
 import com.movieapp.data.local.MovieEntity
 import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.NeubrutalismIcons
@@ -51,10 +52,10 @@ import com.movieapp.util.t
 @Composable
 fun BookmarkScreen(
     onTitleClick: (slug: String, isTvShow: Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    dao: MovieDao = MovieApplication.instance.database.movieDao()
 ) {
     val neoColors = MaterialTheme.neoColors
-    val dao = MovieApplication.instance.database.movieDao()
     val bookmarkedMovies by dao.getBookmarkedMovies().collectAsStateWithLifecycle(initialValue = emptyList())
 
     Column(

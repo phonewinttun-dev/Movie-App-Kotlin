@@ -62,7 +62,20 @@ object LocalizationManager {
         "download_action" to "Download",
         "telegram_action" to "Telegram",
         "copy_link" to "Copy Link",
-        "copied" to "Link copied to clipboard"
+        "copied" to "Link copied to clipboard",
+        "nav_bookmarks" to "Bookmarks",
+        "bookmarks_title" to "My Bookmarks",
+        "bookmarks_subtitle" to "Saved movies and shows to watch later",
+        "bookmarks_empty_title" to "No Bookmarks Yet",
+        "bookmarks_empty_desc" to "Save titles by tapping the bookmark button on any movie or TV show detail screen.",
+        "bookmark_added" to "Added to bookmarks",
+        "bookmark_removed" to "Removed from bookmarks",
+        "res_all" to "All",
+        "direct_download" to "Direct Download",
+        "resolving_link" to "Bypassing ads & preparing download...",
+        "download_full_season" to "Download Season (%d eps)",
+        "download_all_episodes" to "Download All Episodes (%s)",
+        "open_in_telegram" to "Open in Telegram"
     )
 
     fun initialize(context: Context) {
