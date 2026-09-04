@@ -33,28 +33,28 @@ class FeedE2ETest {
     val composeTestRule = createComposeRule()
 
     private val fakeMovies = listOf(
-        MovieDTO(id = 1L, title = "Inception", slug = "inception", releaseYear = "2010", rating = 8.8, mediaType = "movie"),
-        MovieDTO(id = 2L, title = "Interstellar", slug = "interstellar", releaseYear = "2014", rating = 8.7, mediaType = "movie")
+        MovieDTO(rawId = 1L, title = "Inception", slug = "inception", releaseYear = "2010", rawRating = 8.8, mediaType = "movie"),
+        MovieDTO(rawId = 2L, title = "Interstellar", slug = "interstellar", releaseYear = "2014", rawRating = 8.7, mediaType = "movie")
     )
 
     private val fakeTvShows = listOf(
-        MovieDTO(id = 101L, title = "Breaking Bad", slug = "breaking-bad", releaseYear = "2008", rating = 9.5, mediaType = "tv"),
-        MovieDTO(id = 102L, title = "Chernobyl", slug = "chernobyl", releaseYear = "2019", rating = 9.4, mediaType = "tv")
+        MovieDTO(rawId = 101L, title = "Breaking Bad", slug = "breaking-bad", releaseYear = "2008", rawRating = 9.5, mediaType = "tv"),
+        MovieDTO(rawId = 102L, title = "Chernobyl", slug = "chernobyl", releaseYear = "2019", rawRating = 9.4, mediaType = "tv")
     )
 
     private val fakeApiService = object : MovieApiService {
         override suspend fun getMovies(page: Int): MovieListResponseDTO {
             return if (page == 1) {
-                MovieListResponseDTO(items = fakeMovies, currentPage = 1, totalPages = 1)
+                MovieListResponseDTO(items = fakeMovies, rawCurrentPage = 1, rawTotalPages = 1)
             } else {
-                MovieListResponseDTO(items = emptyList(), currentPage = page, totalPages = 1)
+                MovieListResponseDTO(items = emptyList(), rawCurrentPage = page, rawTotalPages = 1)
             }
         }
         override suspend fun getTvShows(page: Int): MovieListResponseDTO {
             return if (page == 1) {
-                MovieListResponseDTO(items = fakeTvShows, currentPage = 1, totalPages = 1)
+                MovieListResponseDTO(items = fakeTvShows, rawCurrentPage = 1, rawTotalPages = 1)
             } else {
-                MovieListResponseDTO(items = emptyList(), currentPage = page, totalPages = 1)
+                MovieListResponseDTO(items = emptyList(), rawCurrentPage = page, rawTotalPages = 1)
             }
         }
         override suspend fun getMovieDetail(slug: String) = throw UnsupportedOperationException()
