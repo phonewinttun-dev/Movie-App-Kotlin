@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performScrollTo
 import com.movieapp.features.moviedetail.EpisodeDTO
 import com.movieapp.features.moviedetail.MovieDetailDTO
 import com.movieapp.features.moviedetail.MovieDetailRepository
+import com.movieapp.features.moviedetail.MovieDetailResponseDTO
 import com.movieapp.features.moviedetail.MovieDetailScreen
 import com.movieapp.features.moviedetail.MovieDetailViewModel
 import com.movieapp.features.moviedetail.SeasonDTO
@@ -64,7 +65,7 @@ class DetailE2ETest {
         override suspend fun getMovies(page: Int) = throw UnsupportedOperationException()
         override suspend fun getTvShows(page: Int) = throw UnsupportedOperationException()
         override suspend fun getMovieDetail(slug: String) = throw UnsupportedOperationException()
-        override suspend fun getTvShowDetail(slug: String) = fakeTvDetail
+        override suspend fun getTvShowDetail(slug: String) = MovieDetailResponseDTO(success = true, message = "TV Show Details", data = fakeTvDetail)
         override suspend fun searchTitles(keyword: String, page: Int) = throw UnsupportedOperationException()
     }
 

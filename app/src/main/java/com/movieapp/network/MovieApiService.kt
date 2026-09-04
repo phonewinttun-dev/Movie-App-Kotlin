@@ -1,6 +1,6 @@
 package com.movieapp.network
 
-import com.movieapp.features.moviedetail.MovieDetailDTO
+import com.movieapp.features.moviedetail.MovieDetailResponseDTO
 import com.movieapp.features.movielist.MovieListResponseDTO
 import com.movieapp.features.search.SearchResponseDTO
 import retrofit2.http.GET
@@ -8,7 +8,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
- * Direct REST API contract for fetching movie and television data.
+ * Direct REST API contract for fetching movie and television data from HomieTV.
  */
 interface MovieApiService {
 
@@ -34,7 +34,7 @@ interface MovieApiService {
     @GET("movies/{slug}")
     suspend fun getMovieDetail(
         @Path("slug") slug: String
-    ): MovieDetailDTO
+    ): MovieDetailResponseDTO
 
     /**
      * Retrieves detail information for a specific television show by its slug.
@@ -42,7 +42,7 @@ interface MovieApiService {
     @GET("tv-shows/{slug}")
     suspend fun getTvShowDetail(
         @Path("slug") slug: String
-    ): MovieDetailDTO
+    ): MovieDetailResponseDTO
 
     /**
      * Searches for movies and television shows by user keyword.

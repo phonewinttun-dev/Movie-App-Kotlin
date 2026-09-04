@@ -12,6 +12,11 @@ object Constants {
     /**
      * Connection and socket timeout in seconds.
      */
-    const val NETWORK_TIMEOUT_SECONDS = 15L
+    const val NETWORK_TIMEOUT_SECONDS = 30L
+
+    /**
+     * User-Agent header string to prevent bot challenge drops.
+     */
+    const val USER_AGENT = "MovieApp/1.0 (Android; Linux; Android 14)"
 }
 

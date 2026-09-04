@@ -1,21 +1,14 @@
 package com.movieapp.features.movielist
 
 import com.google.gson.annotations.SerializedName
+import com.movieapp.features.moviedetail.CategoryDTO
 
 /**
  * Encapsulates a single movie or television title returned in catalog feeds or search results.
- *
- * @property id Unique identifier.
- * @property title The display title.
- * @property slug URL-friendly slug used for detail routes.
- * @property poster The poster image URL.
- * @property releaseYear The year of release.
- * @property rating The score/rating out of 10.
- * @property mediaType Indicates whether the title is a movie or TV show.
  */
 data class MovieDTO(
     @SerializedName("id")
-    val id: Long = 0L,
+    private val rawId: Any? = null,
 
     @SerializedName("title")
     val title: String? = null,
@@ -33,11 +26,31 @@ data class MovieDTO(
     val releaseYear: String? = null,
 
     @SerializedName("rating", alternate = ["vote_average", "score"])
-    val rating: Double? = null,
+    private val rawRating: Any? = null,
 
     @SerializedName("type", alternate = ["media_type"])
-    val mediaType: String? = null
+    val mediaType: String? = null,
+
+    @SerializedName("resolution")
+    val resolution: String? = null,
+
+    @SerializedName("categories")
+    val categories: List<CategoryDTO>? = null
 ) {
+    val id: Long
+        get() = when (rawId) {
+            is Number -> rawId.toLong()
+            is String -> rawId.toLongOrNull() ?: 0L
+            else -> 0L
+        }
+
+    val rating: Double?
+        get() = when (rawRating) {
+            is Number -> rawRating.toDouble()
+            is String -> rawRating.toDoubleOrNull()
+            else -> null
+        }
+
     /**
      * Resolves the primary title cleanly, falling back to nameFallback if title is null.
      */
@@ -48,11 +61,24 @@ data class MovieDTO(
      * Formats rating as a clean single-decimal string (e.g. "8.5").
      */
     val formattedRating: String
-        get() = rating?.let { String.format(java.util.Locale.US, "%.1f", it) } ?: "N/A"
+        get() = when (rawRating) {
+            is Number -> String.format(java.util.Locale.US, "%.1f", rawRating.toDouble())
+            is String -> rawRating.toDoubleOrNull()?.let { String.format(java.util.Locale.US, "%.1f", it) } ?: rawRating
+            else -> "N/A"
+        }
 
     /**
      * Resolves the 4-digit release year safely.
      */
     val displayYear: String
         get() = releaseYear?.take(4) ?: "Unknown"
+
+    /**
+     * Identifies if this entry is a TV show.
+     */
+    val isTvShow: Boolean
+        get() = mediaType?.equals("tv-show", ignoreCase = true) == true
+
+    val categoryNames: List<String>
+        get() = categories?.map { it.name }?.filter { it.isNotBlank() } ?: emptyList()
 }

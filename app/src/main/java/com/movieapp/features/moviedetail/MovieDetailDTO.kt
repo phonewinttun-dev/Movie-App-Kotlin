@@ -1,14 +1,29 @@
 package com.movieapp.features.moviedetail
 
 import com.google.gson.annotations.SerializedName
+import com.movieapp.features.downloadlinks.DownloadLinkDTO
+
+/**
+ * CategoryDTO represents an individual genre/category classification for movies and TV shows.
+ *
+ * @property id Unique category identifier.
+ * @property name Category title (e.g. "Action", "Comedy", "Drama").
+ */
+data class CategoryDTO(
+    @SerializedName("id")
+    val id: Long = 0L,
+
+    @SerializedName("name")
+    val name: String = ""
+)
 
 /**
  * Encapsulates full detail metadata for a single movie or television series.
- * Note: Download links are excluded from presentation.
+ * Supports download links for both movies and multi-season TV episodes.
  */
 data class MovieDetailDTO(
     @SerializedName("id")
-    val id: Long = 0L,
+    val id: Any? = null,
 
     @SerializedName("title")
     val title: String? = null,
@@ -32,20 +47,36 @@ data class MovieDetailDTO(
     val runtime: String? = null,
 
     @SerializedName("rating", alternate = ["vote_average", "score"])
-    val rating: Double? = null,
+    private val rawRating: Any? = null,
 
-    @SerializedName("plot", alternate = ["overview", "description", "summary"])
+    @SerializedName("overview", alternate = ["plot", "description", "summary"])
     val plot: String? = null,
 
+    @SerializedName("categories")
+    val categories: List<CategoryDTO>? = null,
+
     @SerializedName("genres", alternate = ["genre_list"])
-    val genres: List<String>? = null,
+    private val rawGenres: List<String>? = null,
 
     @SerializedName("type", alternate = ["media_type"])
     val mediaType: String? = null,
 
+    @SerializedName("resolution")
+    val resolution: String? = null,
+
+    @SerializedName("movie_download_links")
+    val movieDownloadLinks: List<DownloadLinkDTO>? = null,
+
     @SerializedName("seasons")
     val seasons: List<SeasonDTO>? = null
 ) {
+    val rating: Double?
+        get() = when (rawRating) {
+            is Number -> rawRating.toDouble()
+            is String -> rawRating.toDoubleOrNull()
+            else -> null
+        }
+
     val displayTitle: String
         get() = title ?: nameFallback ?: "Untitled"
 
@@ -53,28 +84,50 @@ data class MovieDetailDTO(
         get() = releaseYear?.take(4) ?: "Unknown"
 
     val formattedRating: String
-        get() = rating?.let { String.format(java.util.Locale.US, "%.1f / 10", it) } ?: "Not rated"
+        get() = when (rawRating) {
+            is Number -> String.format(java.util.Locale.US, "%.1f / 10", rawRating.toDouble())
+            is String -> rawRating.toDoubleOrNull()?.let { String.format(java.util.Locale.US, "%.1f / 10", it) } ?: rawRating
+            else -> "Not rated"
+        }
 
     val safeGenres: List<String>
-        get() = genres ?: emptyList()
+        get() = categories?.map { it.name }?.filter { it.isNotBlank() }
+            ?: rawGenres
+            ?: emptyList()
 
     val safeSeasons: List<SeasonDTO>
         get() = seasons ?: emptyList()
+
+    val safeMovieDownloadLinks: List<DownloadLinkDTO>
+        get() = movieDownloadLinks ?: emptyList()
+
+    val isTvShow: Boolean
+        get() = mediaType?.equals("tv-show", ignoreCase = true) == true || !seasons.isNullOrEmpty()
 }
 
 /**
- * Encapsulates a television show season.
+ * Encapsulates a television show season containing episodes and associated download links.
  */
 data class SeasonDTO(
-    @SerializedName("season_number", alternate = ["number", "season"])
-    val seasonNumber: Int = 1,
+    @SerializedName("id")
+    val id: Any? = null,
 
-    @SerializedName("name", alternate = ["title"])
+    @SerializedName("season_number", alternate = ["number", "season"])
+    private val rawSeasonNumber: Any? = null,
+
+    @SerializedName("season_name", alternate = ["name", "title"])
     val name: String? = null,
 
     @SerializedName("episodes")
     val episodes: List<EpisodeDTO>? = null
 ) {
+    val seasonNumber: Int
+        get() = when (rawSeasonNumber) {
+            is Number -> rawSeasonNumber.toInt()
+            is String -> rawSeasonNumber.toIntOrNull() ?: 1
+            else -> 1
+        }
+
     val safeEpisodes: List<EpisodeDTO>
         get() = episodes ?: emptyList()
 
@@ -83,18 +136,37 @@ data class SeasonDTO(
 }
 
 /**
- * Encapsulates an individual television episode.
+ * Encapsulates an individual television episode with its download links.
  */
 data class EpisodeDTO(
-    @SerializedName("episode_number", alternate = ["number", "episode"])
-    val episodeNumber: Int = 1,
+    @SerializedName("id")
+    val id: Any? = null,
 
-    @SerializedName("title", alternate = ["name"])
+    @SerializedName("episode_number", alternate = ["number", "episode"])
+    private val rawEpisodeNumber: Any? = null,
+
+    @SerializedName("name", alternate = ["title"])
     val title: String? = null,
 
     @SerializedName("runtime", alternate = ["duration"])
-    val runtime: String? = null
+    val runtime: String? = null,
+
+    @SerializedName("poster", alternate = ["image"])
+    val poster: String? = null,
+
+    @SerializedName("tvshow_download_links", alternate = ["download_links"])
+    val tvDownloadLinks: List<DownloadLinkDTO>? = null
 ) {
+    val episodeNumber: Int
+        get() = when (rawEpisodeNumber) {
+            is Number -> rawEpisodeNumber.toInt()
+            is String -> rawEpisodeNumber.toIntOrNull() ?: 1
+            else -> 1
+        }
+
     val displayTitle: String
-        get() = title ?: "Episode $episodeNumber"
+        get() = if (!title.isNullOrBlank()) "Ep $episodeNumber: $title" else "Episode $episodeNumber"
+
+    val safeDownloadLinks: List<DownloadLinkDTO>
+        get() = tvDownloadLinks ?: emptyList()
 }

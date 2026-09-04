@@ -26,12 +26,24 @@ object NetworkClient {
         }
     }
 
+    private val headerInterceptor = okhttp3.Interceptor { chain ->
+        val original = chain.request()
+        val request = original.newBuilder()
+            .header("User-Agent", Constants.USER_AGENT)
+            .header("Accept", "application/json")
+            .method(original.method, original.body)
+            .build()
+        chain.proceed(request)
+    }
+
     private val okHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
+            .addInterceptor(headerInterceptor)
             .addInterceptor(loggingInterceptor)
             .connectTimeout(Constants.NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(Constants.NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(Constants.NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
             .build()
     }
 

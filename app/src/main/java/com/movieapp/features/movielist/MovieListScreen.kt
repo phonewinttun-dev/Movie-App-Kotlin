@@ -300,7 +300,8 @@ private fun MovieGridCard(
             )
 
             // Rating Badge with Heroicon Star
-            if (item.rating != null && item.rating > 0.0) {
+            val itemRating = item.rating
+            if (itemRating != null && itemRating > 0.0) {
                 Row(
                     modifier = Modifier
                         .align(Alignment.TopEnd)

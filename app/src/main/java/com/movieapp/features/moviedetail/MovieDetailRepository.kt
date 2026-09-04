@@ -24,9 +24,15 @@ class MovieDetailRepository(
         emit(Resource.Loading())
         try {
             val response = apiService.getMovieDetail(slug)
-            emit(Resource.Success(response))
+            val data = response.data
+            if (data != null) {
+                emit(Resource.Success(data))
+            } else {
+                emit(Resource.Error("Movie details could not be found."))
+            }
         } catch (e: Exception) {
-            emit(Resource.Error("Unable to load movie details right now. Please check your connection and try again."))
+            val msg = e.localizedMessage?.takeIf { it.isNotBlank() } ?: "Network error"
+            emit(Resource.Error("Unable to load movie details ($msg). Please check your connection and try again."))
         }
     }.flowOn(ioDispatcher)
 
@@ -37,9 +43,15 @@ class MovieDetailRepository(
         emit(Resource.Loading())
         try {
             val response = apiService.getTvShowDetail(slug)
-            emit(Resource.Success(response))
+            val data = response.data
+            if (data != null) {
+                emit(Resource.Success(data))
+            } else {
+                emit(Resource.Error("Series details could not be found."))
+            }
         } catch (e: Exception) {
-            emit(Resource.Error("Unable to load series details right now. Please check your connection and try again."))
+            val msg = e.localizedMessage?.takeIf { it.isNotBlank() } ?: "Network error"
+            emit(Resource.Error("Unable to load series details ($msg). Please check your connection and try again."))
         }
     }.flowOn(ioDispatcher)
 }
