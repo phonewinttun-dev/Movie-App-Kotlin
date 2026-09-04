@@ -131,6 +131,10 @@ fun MainAppScaffold() {
                 )
             }
 
+            composable(Screen.Downloads.route) {
+                com.movieapp.features.downloads.DownloadsScreen()
+            }
+
             composable(Screen.Search.route) {
                 SearchScreen(
                     viewModel = searchViewModel,
@@ -292,12 +296,13 @@ fun BottomNavigationNeobrutalist(
             .fillMaxWidth()
             .background(neoColors.surface)
             .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(0.dp))
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         val items = listOf(
             Triple(Screen.Feed, t("nav_browse"), NeubrutalismIcons.Browse),
             Triple(Screen.Bookmarks, t("nav_bookmarks"), NeubrutalismIcons.Bookmark),
+            Triple(Screen.Downloads, t("nav_downloads"), NeubrutalismIcons.Download),
             Triple(Screen.Search, t("nav_search"), NeubrutalismIcons.Search)
         )
 

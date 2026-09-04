@@ -75,7 +75,23 @@ object LocalizationManager {
         "resolving_link" to "Bypassing ads & preparing download...",
         "download_full_season" to "Download Season (%d eps)",
         "download_all_episodes" to "Download All Episodes (%s)",
-        "open_in_telegram" to "Open in Telegram"
+        "open_in_telegram" to "Open in Telegram",
+        "nav_downloads" to "Downloads",
+        "downloads_title" to "Downloads",
+        "downloads_subtitle" to "Active downloads & offline history",
+        "currently_downloading" to "Downloading",
+        "download_history" to "History",
+        "no_active_downloads" to "No active downloads",
+        "no_active_downloads_desc" to "When you start downloading movies, track real-time progress here.",
+        "no_download_history" to "No downloaded movies yet",
+        "no_download_history_desc" to "Completed movie and episode downloads will appear here.",
+        "download_started" to "Download started",
+        "direct_link_copied" to "Direct download link copied!",
+        "resolving_direct_link" to "Resolving direct link...",
+        "install_telegram_prompt" to "Please install Telegram to download via this link",
+        "open_movie" to "Play Video",
+        "delete_download" to "Delete",
+        "opening_browser_for_full_video" to "Opening download page in browser to download full video file..."
     )
 
     fun initialize(context: Context) {
