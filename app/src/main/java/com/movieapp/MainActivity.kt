@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,7 +23,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import com.movieapp.features.movielist.MediaCategory
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -86,20 +90,14 @@ fun MainAppScaffold() {
     Scaffold(
         containerColor = neoColors.background,
         topBar = {
-            TopAppBarNeobrutalist(
-                onSearchClick = {
-                    if (currentRoute != Screen.Search.route) {
-                        navController.navigate(Screen.Search.route)
-                    }
-                }
-            )
+            TopAppBarNeobrutalist()
         },
         bottomBar = {
             BottomNavigationNeobrutalist(
                 currentRoute = currentRoute,
                 onNavigate = { screen ->
                     navController.navigate(screen.route) {
-                        popUpTo(Screen.Feed.route) { saveState = true }
+                        popUpTo(Screen.Movies.route) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
@@ -109,10 +107,26 @@ fun MainAppScaffold() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Feed.route,
+            startDestination = Screen.Movies.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Feed.route) {
+            composable(Screen.Movies.route) {
+                LaunchedEffect(Unit) {
+                    movieListViewModel.selectCategory(MediaCategory.MOVIES)
+                }
+                MovieListScreen(
+                    viewModel = movieListViewModel,
+                    onTitleClick = { slug, isTv ->
+                        movieDetailViewModel.loadDetail(slug, isTv)
+                        navController.navigate(Screen.Detail.createRoute(slug, isTv))
+                    }
+                )
+            }
+
+            composable(Screen.TvShows.route) {
+                LaunchedEffect(Unit) {
+                    movieListViewModel.selectCategory(MediaCategory.TV_SHOWS)
+                }
                 MovieListScreen(
                     viewModel = movieListViewModel,
                     onTitleClick = { slug, isTv ->
@@ -174,9 +188,7 @@ fun MainAppScaffold() {
 }
 
 @Composable
-fun TopAppBarNeobrutalist(
-    onSearchClick: () -> Unit
-) {
+fun TopAppBarNeobrutalist() {
     val neoColors = MaterialTheme.neoColors
     val isDark = AppThemeController.isDarkMode
     val currentLang = LocalizationManager.currentLanguage
@@ -196,18 +208,18 @@ fun TopAppBarNeobrutalist(
                 fontFamily = BlackTofuFontFamily,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Black,
-                color = neoColors.textPrimary
+                color = neoColors.onPrimary
             )
             Text(
                 text = t("app_subtitle"),
                 fontFamily = YoeshinFontFamily,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Normal,
-                color = neoColors.textPrimary
+                color = neoColors.onPrimary
             )
         }
 
-        // Quick Controls: Theme, Language, Search (Vector Icons Only)
+        // Quick Controls: Theme & Language Toggles (Vector Icons Only)
         Row(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -257,29 +269,6 @@ fun TopAppBarNeobrutalist(
                     modifier = Modifier.size(18.dp)
                 )
             }
-
-            // Search Icon Button
-            Box(
-                modifier = Modifier
-                    .defaultMinSize(minWidth = 38.dp, minHeight = 38.dp)
-                    .neoShadow(offsetX = 2.dp, offsetY = 2.dp, color = neoColors.shadow, shape = RoundedCornerShape(8.dp))
-                    .background(neoColors.surface, RoundedCornerShape(8.dp))
-                    .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(8.dp))
-                    .clickable(onClick = onSearchClick)
-                    .semantics {
-                        role = Role.Button
-                        selected = false
-                    }
-                    .padding(8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = NeubrutalismIcons.Search,
-                    contentDescription = t("search_btn"),
-                    tint = neoColors.textPrimary,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
         }
     }
 }
@@ -296,14 +285,14 @@ fun BottomNavigationNeobrutalist(
             .fillMaxWidth()
             .background(neoColors.surface)
             .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(0.dp))
-            .padding(horizontal = 8.dp, vertical = 8.dp),
+            .padding(horizontal = 6.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         val items = listOf(
-            Triple(Screen.Feed, t("nav_browse"), NeubrutalismIcons.Browse),
+            Triple(Screen.Movies, t("nav_movies"), NeubrutalismIcons.Movie),
+            Triple(Screen.TvShows, t("nav_tv_shows"), NeubrutalismIcons.Tv),
             Triple(Screen.Bookmarks, t("nav_bookmarks"), NeubrutalismIcons.Bookmark),
-            Triple(Screen.Downloads, t("nav_downloads"), NeubrutalismIcons.Download),
-            Triple(Screen.Search, t("nav_search"), NeubrutalismIcons.Search)
+            Triple(Screen.Downloads, t("nav_download"), NeubrutalismIcons.Download)
         )
 
         items.forEach { (screen, label, icon) ->
@@ -314,13 +303,13 @@ fun BottomNavigationNeobrutalist(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .defaultMinSize(minHeight = 48.dp)
+                    .defaultMinSize(minHeight = 52.dp)
                     .then(
                         if (isSelected) {
                             Modifier
                                 .neoShadow(offsetX = shadowOffset, offsetY = shadowOffset, color = neoColors.shadow, shape = RoundedCornerShape(10.dp))
                                 .background(bg, RoundedCornerShape(10.dp))
-                                .neoBorder(width = 2.5.dp, color = neoColors.border, shape = RoundedCornerShape(10.dp))
+                                .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(10.dp))
                         } else {
                             Modifier
                                 .background(bg, RoundedCornerShape(10.dp))
@@ -332,25 +321,28 @@ fun BottomNavigationNeobrutalist(
                         role = Role.Tab
                         selected = isSelected
                     }
-                    .padding(vertical = 10.dp),
+                    .padding(vertical = 6.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
+                    val contentColor = if (isSelected) neoColors.onPrimary else neoColors.textPrimary
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        tint = neoColors.textPrimary,
-                        modifier = Modifier.size(18.dp)
+                        tint = contentColor,
+                        modifier = Modifier.size(20.dp)
                     )
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = label,
                         fontFamily = CartoonFontFamily,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = neoColors.textPrimary
+                        fontSize = 11.sp,
+                        fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
+                        color = contentColor,
+                        maxLines = 1
                     )
                 }
             }
