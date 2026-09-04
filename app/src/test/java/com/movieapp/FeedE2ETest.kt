@@ -1,9 +1,14 @@
 package com.movieapp
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
+import com.movieapp.features.search.SearchRepository
+import com.movieapp.features.search.SearchResponseDTO
 import com.movieapp.features.movielist.MediaCategory
 import com.movieapp.features.movielist.MovieDTO
 import com.movieapp.features.movielist.MovieListRepository
@@ -59,15 +64,22 @@ class FeedE2ETest {
         }
         override suspend fun getMovieDetail(slug: String) = throw UnsupportedOperationException()
         override suspend fun getTvShowDetail(slug: String) = throw UnsupportedOperationException()
-        override suspend fun searchTitles(keyword: String, page: Int) = throw UnsupportedOperationException()
+        override suspend fun searchTitles(keyword: String, page: Int): SearchResponseDTO {
+            val all = (fakeMovies + fakeTvShows).filter { it.title?.contains(keyword, ignoreCase = true) == true }
+            return SearchResponseDTO(items = all, rawCurrentPage = 1, rawTotalPages = 1)
+        }
     }
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private val testDispatcher = kotlinx.coroutines.test.UnconfinedTestDispatcher()
     private val repository = MovieListRepository(fakeApiService, testDispatcher)
+    private val searchRepository = SearchRepository(fakeApiService, testDispatcher)
+
+    private fun createViewModel() = MovieListViewModel(repository, searchRepository, searchDebounceMillis = 0L)
 
     @Test
     fun feedDisplaysMoviesInitiallyAndSwitchesToTvShows() {
-        val viewModel = MovieListViewModel(repository)
+        val viewModel = createViewModel()
         var clickedSlug: String? = null
         var clickedIsTv: Boolean? = null
 
@@ -83,16 +95,17 @@ class FeedE2ETest {
             }
         }
 
-        // Verify initial Movies list
-        composeTestRule.onNodeWithText("Movies").assertIsDisplayed()
-        composeTestRule.onNodeWithText("TV Shows").assertIsDisplayed()
+        // Verify initial Movies list and in-page search placeholder
+        composeTestRule.onNodeWithText("Search movies...").assertIsDisplayed()
         composeTestRule.onNodeWithText("Inception").assertIsDisplayed()
         composeTestRule.onNodeWithText("Interstellar").assertIsDisplayed()
 
-        // Switch to TV Shows tab
-        composeTestRule.onNodeWithText("TV Shows").performClick()
+        // Switch to TV Shows category
+        viewModel.selectCategory(MediaCategory.TV_SHOWS)
+        composeTestRule.waitForIdle()
 
-        // Verify TV shows are displayed
+        // Verify TV shows are displayed with updated search placeholder
+        composeTestRule.onNodeWithText("Search TV shows...").assertIsDisplayed()
         composeTestRule.onNodeWithText("Breaking Bad").assertIsDisplayed()
         composeTestRule.onNodeWithText("Chernobyl").assertIsDisplayed()
 
@@ -100,6 +113,41 @@ class FeedE2ETest {
         composeTestRule.onNodeWithText("Breaking Bad").performClick()
         assertEquals("breaking-bad", clickedSlug)
         assertTrue(clickedIsTv == true)
+    }
+
+    @Test
+    fun inPageSearchFiltersTitlesCorrectly() {
+        val viewModel = createViewModel()
+
+        composeTestRule.setContent {
+            MovieAppTheme {
+                MovieListScreen(
+                    viewModel = viewModel,
+                    onTitleClick = { _, _ -> }
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Inception").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Interstellar").assertIsDisplayed()
+
+        // Type query in the in-page search bar
+        viewModel.onSearchQueryChange("Inception")
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            viewModel.uiState.value.moviesSearchResults.isNotEmpty()
+        }
+        composeTestRule.waitForIdle()
+
+        // Verify filtered results: Inception is displayed (in search bar and movie card), Interstellar is not
+        composeTestRule.onAllNodesWithText("Inception").assertCountEquals(2)
+        composeTestRule.onNodeWithText("Interstellar").assertDoesNotExist()
+
+        // Clear search query
+        viewModel.clearSearchQuery()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Inception").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Interstellar").assertIsDisplayed()
     }
 
     @Test

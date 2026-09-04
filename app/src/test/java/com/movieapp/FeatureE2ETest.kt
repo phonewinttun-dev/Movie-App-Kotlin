@@ -83,6 +83,21 @@ class FeatureE2ETest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         val context = ApplicationProvider.getApplicationContext<Context>()
+        val testImageLoader = coil.ImageLoader.Builder(context)
+            .components {
+                add(object : coil.intercept.Interceptor {
+                    override suspend fun intercept(chain: coil.intercept.Interceptor.Chain): coil.request.ImageResult {
+                        return coil.request.SuccessResult(
+                            drawable = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT),
+                            request = chain.request,
+                            dataSource = coil.decode.DataSource.MEMORY
+                        )
+                    }
+                })
+            }
+            .build()
+        coil.Coil.setImageLoader(testImageLoader)
+
         database = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
             .allowMainThreadQueries()
             .build()
@@ -91,6 +106,7 @@ class FeatureE2ETest {
 
     @After
     fun teardown() {
+        composeTestRule.waitForIdle()
         Dispatchers.resetMain()
         database.close()
     }
@@ -160,6 +176,62 @@ class FeatureE2ETest {
         // Click the bookmarked item card
         composeTestRule.onNodeWithText("Inception").performClick()
         assertEquals("inception-2010", clickedSlug)
+    }
+
+    @Test
+    fun unbookmarkOnBookmarkScreen_immediatelyRemovesTitleAndUpdatesDatabase() {
+        val sampleMovie = com.movieapp.data.local.MovieEntity(
+            slug = "inception-2010",
+            title = "Inception",
+            poster = "https://example.com/poster.jpg",
+            rating = "8.8",
+            releaseYear = "2010",
+            isTvShow = false,
+            plot = "A thief who steals corporate secrets.",
+            jsonDetail = "{}",
+            isBookmarked = true,
+            bookmarkedAt = System.currentTimeMillis()
+        )
+        runBlocking { movieDao.insertOrUpdate(sampleMovie) }
+        var showBookmarkScreen by mutableStateOf(true)
+        composeTestRule.setContent {
+            MovieAppTheme {
+                if (showBookmarkScreen) {
+                    BookmarkScreen(
+                        onTitleClick = { _, _ -> },
+                        dao = movieDao
+                    )
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        // Verify Inception is displayed in bookmarks
+        composeTestRule.onNodeWithText("Inception").assertIsDisplayed()
+
+        // Click the unbookmark button
+        composeTestRule.onNodeWithContentDescription("Remove from bookmarks", substring = true).performClick()
+        composeTestRule.waitForIdle()
+
+        // Verify Inception is immediately no longer displayed on screen
+        composeTestRule.onNodeWithText("Inception").assertDoesNotExist()
+
+        // Verify empty state is displayed
+        composeTestRule.onNodeWithText("No Bookmarks Yet").assertIsDisplayed()
+
+        // Wait until Room database has processed the unbookmark
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            runBlocking { movieDao.getBookmarkedMovies().first().isEmpty() }
+        }
+        composeTestRule.waitForIdle()
+
+        // Verify in Room database that it is updated to false
+        val isBookmarkedInDb = runBlocking { movieDao.isBookmarked("inception-2010").first() }
+        assertTrue(isBookmarkedInDb == false)
+
+        // Dispose composable to cleanly stop Room flow observation before teardown
+        showBookmarkScreen = false
+        composeTestRule.waitForIdle()
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

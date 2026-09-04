@@ -78,6 +78,21 @@ class DetailE2ETest {
     @org.junit.Before
     fun setup() {
         kotlinx.coroutines.Dispatchers.setMain(testDispatcher)
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val testImageLoader = coil.ImageLoader.Builder(context)
+            .components {
+                add(object : coil.intercept.Interceptor {
+                    override suspend fun intercept(chain: coil.intercept.Interceptor.Chain): coil.request.ImageResult {
+                        return coil.request.SuccessResult(
+                            drawable = android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT),
+                            request = chain.request,
+                            dataSource = coil.decode.DataSource.MEMORY
+                        )
+                    }
+                })
+            }
+            .build()
+        coil.Coil.setImageLoader(testImageLoader)
     }
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
