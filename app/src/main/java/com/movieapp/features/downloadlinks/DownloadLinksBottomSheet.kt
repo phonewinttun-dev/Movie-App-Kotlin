@@ -48,6 +48,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.movieapp.theme.CartoonFontFamily
+import com.movieapp.theme.NeoBlack
 import com.movieapp.theme.NeubrutalismIcons
 import com.movieapp.theme.TypewriterFontFamily
 import com.movieapp.theme.YoeshinFontFamily
@@ -140,7 +141,7 @@ fun DownloadLinksBottomSheet(
                             Icon(
                                 imageVector = NeubrutalismIcons.Copy,
                                 contentDescription = null,
-                                tint = neoColors.textPrimary,
+                                tint = neoColors.onPrimary,
                                 modifier = Modifier.size(14.dp)
                             )
                             Text(
@@ -148,7 +149,7 @@ fun DownloadLinksBottomSheet(
                                 fontFamily = CartoonFontFamily,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = neoColors.textPrimary
+                                color = neoColors.onPrimary
                             )
                         }
                     }
@@ -195,7 +196,8 @@ fun DownloadLinksBottomSheet(
                                 text = label,
                                 fontFamily = CartoonFontFamily,
                                 fontSize = 12.sp,
-                                color = neoColors.textPrimary
+                                fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
+                                color = if (isSelected) neoColors.onPrimary else neoColors.textPrimary
                             )
                         }
                     }
@@ -304,14 +306,15 @@ fun DownloadLinkCard(
                         Box(
                             modifier = Modifier
                                 .neoBorder(width = 1.dp, color = neoColors.border, shape = RoundedCornerShape(4.dp))
-                                .background(neoColors.primary, RoundedCornerShape(4.dp))
+                                .background(neoColors.secondary, RoundedCornerShape(4.dp))
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
                                 text = res,
                                 fontFamily = TypewriterFontFamily,
                                 fontSize = 10.sp,
-                                color = neoColors.textPrimary
+                                fontWeight = FontWeight.Bold,
+                                color = neoColors.onSecondary
                             )
                         }
                     }
@@ -353,19 +356,22 @@ fun DownloadLinkCard(
 
                 Spacer(modifier = Modifier.width(6.dp))
 
+                val btnBg = if (link.isTelegram) neoColors.tertiary else neoColors.primary
+                val btnContent = if (link.isTelegram) NeoBlack else neoColors.onPrimary
+
                 Button(
                     onClick = onOpenLink,
                     enabled = !isResolving,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (link.isTelegram) neoColors.tertiary else neoColors.primary,
-                        contentColor = neoColors.textPrimary
+                        containerColor = btnBg,
+                        contentColor = btnContent
                     ),
                     modifier = Modifier.neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(8.dp))
                 ) {
                     if (isResolving) {
                         CircularProgressIndicator(
-                            color = neoColors.textPrimary,
+                            color = btnContent,
                             strokeWidth = 2.dp,
                             modifier = Modifier.size(16.dp)
                         )
@@ -373,7 +379,7 @@ fun DownloadLinkCard(
                         Icon(
                             imageVector = if (link.isTelegram) NeubrutalismIcons.Telegram else NeubrutalismIcons.Download,
                             contentDescription = null,
-                            tint = neoColors.textPrimary,
+                            tint = btnContent,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -381,7 +387,8 @@ fun DownloadLinkCard(
                             text = if (link.isTelegram) t("telegram_action") else t("direct_download"),
                             fontFamily = CartoonFontFamily,
                             fontSize = 13.sp,
-                            color = neoColors.textPrimary
+                            fontWeight = FontWeight.Bold,
+                            color = btnContent
                         )
                     }
                 }

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,8 @@ import androidx.compose.ui.unit.dp
  */
 object NeubrutalismIcons {
     val Browse: ImageVector get() = Icons.Default.Movie
+    val Movie: ImageVector get() = Icons.Default.Movie
+    val Tv: ImageVector get() = Icons.Default.Tv
     val Search: ImageVector get() = Icons.Default.Search
     val LightMode: ImageVector get() = Icons.Default.LightMode
     val DarkMode: ImageVector get() = Icons.Default.DarkMode

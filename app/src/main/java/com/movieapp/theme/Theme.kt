@@ -42,9 +42,9 @@ fun MovieAppTheme(
     val colorScheme = if (darkTheme) {
         darkColorScheme(
             primary = neoColors.primary,
-            onPrimary = NeoBlack,
+            onPrimary = neoColors.onPrimary,
             secondary = neoColors.secondary,
-            onSecondary = NeoBlack,
+            onSecondary = neoColors.onSecondary,
             tertiary = neoColors.tertiary,
             onTertiary = NeoBlack,
             background = neoColors.background,
@@ -55,9 +55,9 @@ fun MovieAppTheme(
     } else {
         lightColorScheme(
             primary = neoColors.primary,
-            onPrimary = NeoBlack,
+            onPrimary = neoColors.onPrimary,
             secondary = neoColors.secondary,
-            onSecondary = NeoBlack,
+            onSecondary = neoColors.onSecondary,
             tertiary = neoColors.tertiary,
             onTertiary = NeoBlack,
             background = neoColors.background,
