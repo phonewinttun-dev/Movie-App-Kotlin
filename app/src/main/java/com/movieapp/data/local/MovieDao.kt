@@ -25,6 +25,19 @@ interface MovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdate(movie: MovieEntity)
 
+    @Query("UPDATE movies SET title = :title, poster = :poster, rating = :rating, releaseYear = :releaseYear, isTvShow = :isTvShow, plot = :plot, jsonDetail = :jsonDetail, cachedAt = :cachedAt WHERE slug = :slug")
+    suspend fun updateMetadata(
+        slug: String,
+        title: String,
+        poster: String?,
+        rating: String?,
+        releaseYear: String?,
+        isTvShow: Boolean,
+        plot: String?,
+        jsonDetail: String?,
+        cachedAt: Long
+    ): Int
+
     @Query("UPDATE movies SET isBookmarked = :isBookmarked, bookmarkedAt = :bookmarkedAt WHERE slug = :slug")
     suspend fun updateBookmarkStatus(slug: String, isBookmarked: Boolean, bookmarkedAt: Long)
 }

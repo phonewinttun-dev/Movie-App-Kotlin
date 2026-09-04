@@ -183,4 +183,48 @@ class DownloadAndBookmarkUnitTest {
         val unbookmarkedList = movieDao.getBookmarkedMovies().first()
         assertTrue(unbookmarkedList.isEmpty())
     }
+
+    @Test
+    fun testUpdateMetadataPreservesBookmarkStatus() = runBlocking {
+        val sampleMovie = MovieEntity(
+            slug = "interstellar-2014",
+            title = "Interstellar",
+            poster = "https://example.com/poster.jpg",
+            rating = "8.6",
+            releaseYear = "2014",
+            isTvShow = false,
+            plot = "Space travel.",
+            jsonDetail = "{}",
+            isBookmarked = true,
+            bookmarkedAt = 123456789L
+        )
+
+        // 1. Insert bookmarked movie
+        movieDao.insertOrUpdate(sampleMovie)
+        val initial = movieDao.getMovieBySlug("interstellar-2014")
+        assertTrue(initial?.isBookmarked == true)
+        assertEquals(123456789L, initial?.bookmarkedAt)
+
+        // 2. Metadata update from fresh network response
+        val updatedRows = movieDao.updateMetadata(
+            slug = "interstellar-2014",
+            title = "Interstellar (Updated)",
+            poster = "https://example.com/new_poster.jpg",
+            rating = "8.7",
+            releaseYear = "2014",
+            isTvShow = false,
+            plot = "Updated plot summary.",
+            jsonDetail = "{\"rating\": 8.7}",
+            cachedAt = System.currentTimeMillis()
+        )
+        assertEquals(1, updatedRows)
+
+        // 3. Verify metadata changed, but isBookmarked and bookmarkedAt were preserved!
+        val updated = movieDao.getMovieBySlug("interstellar-2014")
+        assertNotNull(updated)
+        assertEquals("Interstellar (Updated)", updated?.title)
+        assertEquals("8.7", updated?.rating)
+        assertTrue("isBookmarked must remain true after metadata update", updated?.isBookmarked == true)
+        assertEquals("bookmarkedAt must remain 123456789L after metadata update", 123456789L, updated?.bookmarkedAt)
+    }
 }

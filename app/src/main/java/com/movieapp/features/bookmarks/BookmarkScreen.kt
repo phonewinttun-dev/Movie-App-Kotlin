@@ -29,7 +29,10 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,6 +54,7 @@ import com.movieapp.MovieApplication
 import com.movieapp.data.local.MovieDao
 import com.movieapp.data.local.MovieEntity
 import com.movieapp.theme.CartoonFontFamily
+import com.movieapp.theme.NeoBlack
 import com.movieapp.theme.NeubrutalismIcons
 import com.movieapp.theme.TypewriterFontFamily
 import com.movieapp.theme.YoeshinFontFamily
@@ -72,7 +76,11 @@ fun BookmarkScreen(
     val neoColors = MaterialTheme.neoColors
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val bookmarkedMovies by dao.getBookmarkedMovies().collectAsStateWithLifecycle(initialValue = emptyList())
+    val rawBookmarks by dao.getBookmarkedMovies().collectAsStateWithLifecycle(initialValue = emptyList())
+    var locallyRemovedSlugs by remember { mutableStateOf(setOf<String>()) }
+    val bookmarkedMovies = remember(rawBookmarks, locallyRemovedSlugs) {
+        rawBookmarks.filter { it.slug !in locallyRemovedSlugs }
+    }
 
     val pullRefreshState = rememberPullToRefreshState()
     if (pullRefreshState.isRefreshing) {
@@ -161,10 +169,11 @@ fun BookmarkScreen(
                             item = movie,
                             onClick = { onTitleClick(movie.slug, movie.isTvShow) },
                             onRemoveClick = {
+                                locallyRemovedSlugs = locallyRemovedSlugs + movie.slug
+                                val toastMsg = LocalizationManager.getString("bookmark_removed")
+                                Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
                                 coroutineScope.launch {
                                     dao.updateBookmarkStatus(slug = movie.slug, isBookmarked = false, bookmarkedAt = 0L)
-                                    val toastMsg = LocalizationManager.getString("bookmark_removed")
-                                    Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
                                 }
                             }
                         )
@@ -219,12 +228,12 @@ private fun BookmarkMovieCard(
                 modifier = Modifier.fillMaxSize()
             )
 
-            // One-tap unbookmark button (US-14)
+            // One-tap unbookmark button (US-14) with a11y 48dp touch target
             Box(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(8.dp)
-                    .defaultMinSize(minWidth = 36.dp, minHeight = 36.dp)
+                    .padding(6.dp)
+                    .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
                     .neoShadow(offsetX = 2.dp, offsetY = 2.dp, color = neoColors.shadow, shape = RoundedCornerShape(6.dp))
                     .background(neoColors.surface, RoundedCornerShape(6.dp))
                     .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(6.dp))
@@ -233,14 +242,14 @@ private fun BookmarkMovieCard(
                         role = Role.Button
                         contentDescription = removeBookmarkLabel
                     }
-                    .padding(6.dp),
+                    .padding(8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = NeubrutalismIcons.Bookmark,
                     contentDescription = null,
                     tint = neoColors.primary,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
 
@@ -251,7 +260,7 @@ private fun BookmarkMovieCard(
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                         .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(6.dp))
-                        .background(neoColors.primary, RoundedCornerShape(6.dp))
+                        .background(neoColors.tertiary, RoundedCornerShape(6.dp))
                         .padding(horizontal = 6.dp, vertical = 3.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(3.dp)
@@ -259,7 +268,7 @@ private fun BookmarkMovieCard(
                     Icon(
                         imageVector = NeubrutalismIcons.Star,
                         contentDescription = null,
-                        tint = neoColors.textPrimary,
+                        tint = NeoBlack,
                         modifier = Modifier.size(11.dp)
                     )
                     Text(
@@ -267,7 +276,7 @@ private fun BookmarkMovieCard(
                         fontFamily = TypewriterFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 10.sp,
-                        color = neoColors.textPrimary
+                        color = NeoBlack
                     )
                 }
             }
@@ -301,7 +310,7 @@ private fun BookmarkMovieCard(
                     color = neoColors.textSecondary
                 )
                 val typeLabel = if (item.isTvShow) t("badge_tv_show") else t("badge_movie")
-                val typeBg = if (item.isTvShow) neoColors.secondary else neoColors.tertiary
+                val typeBg = if (item.isTvShow) neoColors.secondary else neoColors.primary
                 Box(
                     modifier = Modifier
                         .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(4.dp))
@@ -313,7 +322,7 @@ private fun BookmarkMovieCard(
                         fontFamily = TypewriterFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 9.sp,
-                        color = neoColors.textPrimary
+                        color = neoColors.onPrimary
                     )
                 }
             }

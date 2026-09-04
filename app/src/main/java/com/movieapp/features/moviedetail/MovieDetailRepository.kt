@@ -52,10 +52,8 @@ class MovieDetailRepository(
             val response = apiService.getMovieDetail(slug)
             val data = response.data
             if (data != null) {
-                // Save to Room cache
-                val isCurrentlyBookmarked = cachedEntity?.isBookmarked ?: false
-                val bookmarkedTimestamp = cachedEntity?.bookmarkedAt ?: 0L
-                val entity = MovieEntity(
+                // Save to Room cache without overwriting user bookmark status
+                val updatedRows = activeDao.updateMetadata(
                     slug = slug,
                     title = data.displayTitle,
                     poster = data.poster,
@@ -64,11 +62,24 @@ class MovieDetailRepository(
                     isTvShow = false,
                     plot = data.plot,
                     jsonDetail = gson.toJson(data),
-                    isBookmarked = isCurrentlyBookmarked,
-                    bookmarkedAt = bookmarkedTimestamp,
                     cachedAt = System.currentTimeMillis()
                 )
-                activeDao.insertOrUpdate(entity)
+                if (updatedRows == 0) {
+                    val entity = MovieEntity(
+                        slug = slug,
+                        title = data.displayTitle,
+                        poster = data.poster,
+                        rating = data.formattedRating,
+                        releaseYear = data.displayYear,
+                        isTvShow = false,
+                        plot = data.plot,
+                        jsonDetail = gson.toJson(data),
+                        isBookmarked = false,
+                        bookmarkedAt = 0L,
+                        cachedAt = System.currentTimeMillis()
+                    )
+                    activeDao.insertOrUpdate(entity)
+                }
                 emit(Resource.Success(data))
             } else if (cachedEntity == null) {
                 emit(Resource.Error("Movie details aren't available."))
@@ -105,9 +116,8 @@ class MovieDetailRepository(
             val response = apiService.getTvShowDetail(slug)
             val data = response.data
             if (data != null) {
-                val isCurrentlyBookmarked = cachedEntity?.isBookmarked ?: false
-                val bookmarkedTimestamp = cachedEntity?.bookmarkedAt ?: 0L
-                val entity = MovieEntity(
+                // Save to Room cache without overwriting user bookmark status
+                val updatedRows = activeDao.updateMetadata(
                     slug = slug,
                     title = data.displayTitle,
                     poster = data.poster,
@@ -116,11 +126,24 @@ class MovieDetailRepository(
                     isTvShow = true,
                     plot = data.plot,
                     jsonDetail = gson.toJson(data),
-                    isBookmarked = isCurrentlyBookmarked,
-                    bookmarkedAt = bookmarkedTimestamp,
                     cachedAt = System.currentTimeMillis()
                 )
-                activeDao.insertOrUpdate(entity)
+                if (updatedRows == 0) {
+                    val entity = MovieEntity(
+                        slug = slug,
+                        title = data.displayTitle,
+                        poster = data.poster,
+                        rating = data.formattedRating,
+                        releaseYear = data.displayYear,
+                        isTvShow = true,
+                        plot = data.plot,
+                        jsonDetail = gson.toJson(data),
+                        isBookmarked = false,
+                        bookmarkedAt = 0L,
+                        cachedAt = System.currentTimeMillis()
+                    )
+                    activeDao.insertOrUpdate(entity)
+                }
                 emit(Resource.Success(data))
             } else if (cachedEntity == null) {
                 emit(Resource.Error("Show details aren't available."))

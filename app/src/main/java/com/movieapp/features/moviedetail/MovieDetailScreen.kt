@@ -42,6 +42,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,6 +51,7 @@ import com.movieapp.features.downloadlinks.DownloadLinkDTO
 import com.movieapp.features.downloadlinks.DownloadLinksBottomSheet
 import com.movieapp.theme.BlackTofuFontFamily
 import com.movieapp.theme.CartoonFontFamily
+import com.movieapp.theme.NeoBlack
 import com.movieapp.theme.NeoButton
 import com.movieapp.theme.NeubrutalismIcons
 import com.movieapp.theme.TypewriterFontFamily
@@ -173,14 +175,14 @@ fun MovieDetailScreen(
                         Icon(
                             imageVector = if (isBookmarked) NeubrutalismIcons.Bookmark else NeubrutalismIcons.BookmarkBorder,
                             contentDescription = if (isBookmarked) t("remove_bookmark") else t("add_bookmark"),
-                            tint = neoColors.textPrimary,
+                            tint = if (isBookmarked) neoColors.onPrimary else neoColors.textPrimary,
                             modifier = Modifier.size(18.dp)
                         )
                     }
 
                     // Media Type Badge
                     val badgeText = if (uiState.isTvShow) t("badge_tv_show") else t("badge_movie")
-                    val badgeColor = if (uiState.isTvShow) neoColors.secondary else neoColors.tertiary
+                    val badgeColor = if (uiState.isTvShow) neoColors.secondary else neoColors.primary
 
                     Box(
                         modifier = Modifier
@@ -192,7 +194,8 @@ fun MovieDetailScreen(
                             text = badgeText,
                             fontFamily = TypewriterFontFamily,
                             fontSize = 11.sp,
-                            color = neoColors.textPrimary
+                            fontWeight = FontWeight.Bold,
+                            color = neoColors.onPrimary
                         )
                     }
                 }
@@ -297,10 +300,10 @@ fun MovieDetailScreen(
 
                         Box(
                             modifier = Modifier
-                                .neoShadow(offsetX = 3.dp, offsetY = 3.dp, color = neoColors.shadow, shape = RoundedCornerShape(10.dp))
-                                .background(neoColors.primary, RoundedCornerShape(10.dp))
-                                .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(10.dp))
-                                .padding(horizontal = 10.dp, vertical = 6.dp)
+                                 .neoShadow(offsetX = 3.dp, offsetY = 3.dp, color = neoColors.shadow, shape = RoundedCornerShape(10.dp))
+                                 .background(neoColors.tertiary, RoundedCornerShape(10.dp))
+                                 .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(10.dp))
+                                 .padding(horizontal = 10.dp, vertical = 6.dp)
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -309,14 +312,15 @@ fun MovieDetailScreen(
                                 Icon(
                                     imageVector = NeubrutalismIcons.Star,
                                     contentDescription = null,
-                                    tint = neoColors.textPrimary,
+                                    tint = NeoBlack,
                                     modifier = Modifier.size(13.dp)
                                 )
                                 Text(
                                     text = detail.formattedRating,
                                     fontFamily = TypewriterFontFamily,
                                     fontSize = 12.sp,
-                                    color = neoColors.textPrimary
+                                    fontWeight = FontWeight.Bold,
+                                    color = NeoBlack
                                 )
                             }
                         }
@@ -346,7 +350,7 @@ fun MovieDetailScreen(
                                 Icon(
                                     imageVector = NeubrutalismIcons.Download,
                                     contentDescription = null,
-                                    tint = neoColors.textPrimary,
+                                    tint = neoColors.onPrimary,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -354,7 +358,8 @@ fun MovieDetailScreen(
                                     text = t("get_download_links", detail.safeMovieDownloadLinks.size),
                                     fontFamily = CartoonFontFamily,
                                     fontSize = 14.sp,
-                                    color = neoColors.textPrimary
+                                    fontWeight = FontWeight.Bold,
+                                    color = neoColors.onPrimary
                                 )
                             }
                         }
@@ -491,7 +496,7 @@ fun MovieDetailScreen(
                                     Icon(
                                         imageVector = NeubrutalismIcons.Download,
                                         contentDescription = null,
-                                        tint = neoColors.textPrimary,
+                                        tint = neoColors.onSecondary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
@@ -499,7 +504,8 @@ fun MovieDetailScreen(
                                         text = t("download_full_season", activeEpisodes.size),
                                         fontFamily = CartoonFontFamily,
                                         fontSize = 13.sp,
-                                        color = neoColors.textPrimary
+                                        fontWeight = FontWeight.Bold,
+                                        color = neoColors.onSecondary
                                     )
                                 }
                             }
@@ -542,7 +548,8 @@ fun MovieDetailScreen(
                                                 text = "${episode.episodeNumber}",
                                                 fontFamily = TypewriterFontFamily,
                                                 fontSize = 11.sp,
-                                                color = neoColors.textPrimary
+                                                fontWeight = FontWeight.Bold,
+                                                color = neoColors.onPrimary
                                             )
                                         }
                                         Spacer(modifier = Modifier.width(10.dp))
