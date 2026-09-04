@@ -1,7 +1,11 @@
 package com.movieapp.features.downloadlinks
 
+import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,15 +16,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,12 +31,30 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.movieapp.theme.CartoonFontFamily
+import com.movieapp.theme.NeubrutalismIcons
+import com.movieapp.theme.TypewriterFontFamily
+import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.neoBorder
+import com.movieapp.theme.neoColors
+import com.movieapp.theme.neoShadow
+import com.movieapp.util.LocalizationManager
+import com.movieapp.util.t
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,11 +65,29 @@ fun DownloadLinksBottomSheet(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
+    val neoColors = MaterialTheme.neoColors
+    val coroutineScope = rememberCoroutineScope()
+
+    // Resolution Filter: Extract distinct resolutions (e.g. 720p, 1080p, 4K)
+    val availableResolutions = remember(downloadLinks) {
+        listOf("All") + downloadLinks.mapNotNull { it.resolution?.trim() }.filter { it.isNotBlank() }.distinct()
+    }
+    var selectedResolution by remember { mutableStateOf("All") }
+
+    val filteredLinks = remember(downloadLinks, selectedResolution) {
+        if (selectedResolution == "All") {
+            downloadLinks
+        } else {
+            downloadLinks.filter { it.resolution?.trim().equals(selectedResolution, ignoreCase = true) }
+        }
+    }
+
+    var resolvingLinkId by remember { mutableStateOf<Long?>(null) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = neoColors.surface
     ) {
         Column(
             modifier = Modifier
@@ -57,23 +95,72 @@ fun DownloadLinksBottomSheet(
                 .padding(horizontal = 20.dp, vertical = 8.dp)
         ) {
             Text(
-                text = "Download Links",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                text = t("download_links"),
+                fontFamily = CartoonFontFamily,
+                fontSize = 18.sp,
+                color = neoColors.textPrimary
             )
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 2.dp, bottom = 16.dp)
+                fontFamily = YoeshinFontFamily,
+                fontSize = 13.sp,
+                color = neoColors.textSecondary,
+                modifier = Modifier.padding(top = 2.dp, bottom = 12.dp)
             )
 
-            if (downloadLinks.isEmpty()) {
+            // Resolution Filter Chips (720p / 1080p / 4K / All)
+            if (availableResolutions.size > 2) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(bottom = 14.dp)
+                ) {
+                    availableResolutions.forEach { res ->
+                        val isSelected = res == selectedResolution
+                        val label = if (res == "All") t("res_all") else res
+                        val bg = if (isSelected) neoColors.primary else neoColors.surfaceMuted
+
+                        Box(
+                            modifier = Modifier
+                                .then(
+                                    if (isSelected) {
+                                        Modifier
+                                            .neoShadow(offsetX = 2.dp, offsetY = 2.dp, color = neoColors.shadow, shape = RoundedCornerShape(8.dp))
+                                            .background(bg, RoundedCornerShape(8.dp))
+                                            .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(8.dp))
+                                    } else {
+                                        Modifier
+                                            .background(bg, RoundedCornerShape(8.dp))
+                                            .neoBorder(width = 1.dp, color = neoColors.border, shape = RoundedCornerShape(8.dp))
+                                    }
+                                )
+                                .clickable { selectedResolution = res }
+                                .semantics {
+                                    role = Role.Tab
+                                    selected = isSelected
+                                }
+                                .padding(horizontal = 12.dp, vertical = 6.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = label,
+                                fontFamily = CartoonFontFamily,
+                                fontSize = 12.sp,
+                                color = neoColors.textPrimary
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (filteredLinks.isEmpty()) {
                 Text(
-                    text = "No download links available for this title yet.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = t("no_download_links"),
+                    fontFamily = YoeshinFontFamily,
+                    fontSize = 13.sp,
+                    color = neoColors.textSecondary,
                     modifier = Modifier.padding(vertical = 24.dp)
                 )
             } else {
@@ -81,10 +168,33 @@ fun DownloadLinksBottomSheet(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.padding(bottom = 24.dp)
                 ) {
-                    items(downloadLinks) { link ->
+                    items(filteredLinks) { link ->
+                        val isResolving = resolvingLinkId == link.id
+
                         DownloadLinkCard(
                             link = link,
-                            onOpenLink = { DownloadManagerHelper.openExternalLink(context, link) },
+                            isResolving = isResolving,
+                            onOpenLink = {
+                                if (link.isTelegram) {
+                                    // tg:// protocol instant launch
+                                    DownloadManagerHelper.openExternalLink(context, link)
+                                } else {
+                                    // In-App Direct Download with Ad Bypass Resolver
+                                    val resolvingMsg = LocalizationManager.getString("resolving_link")
+                                    coroutineScope.launch {
+                                        resolvingLinkId = link.id
+                                        Toast.makeText(context, resolvingMsg, Toast.LENGTH_SHORT).show()
+                                        val result = DirectDownloadResolver.resolveDirectUrl(link)
+                                        resolvingLinkId = null
+                                        result.onSuccess { directUrl ->
+                                            DownloadManagerHelper.startNativeDownload(context, title, directUrl)
+                                        }.onFailure {
+                                            // Fallback to browser if scraper fails
+                                            DownloadManagerHelper.openExternalLink(context, link)
+                                        }
+                                    }
+                                }
+                            },
                             onCopyLink = {
                                 link.url?.let {
                                     DownloadManagerHelper.copyLinkToClipboard(context, link.cleanServerName, it)
@@ -101,15 +211,20 @@ fun DownloadLinksBottomSheet(
 @Composable
 fun DownloadLinkCard(
     link: DownloadLinkDTO,
+    isResolving: Boolean = false,
     onOpenLink: () -> Unit,
     onCopyLink: () -> Unit
 ) {
+    val neoColors = MaterialTheme.neoColors
+
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+            containerColor = neoColors.surfaceMuted
         ),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(12.dp))
     ) {
         Row(
             modifier = Modifier
@@ -122,24 +237,25 @@ fun DownloadLinkCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = link.cleanServerName,
-                        fontWeight = FontWeight.Bold,
+                        fontFamily = CartoonFontFamily,
                         fontSize = 15.sp,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = neoColors.textPrimary
                     )
                     link.resolution?.takeIf { it.isNotBlank() }?.let { res ->
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = res,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary,
+                        Box(
                             modifier = Modifier
-                                .background(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                                    RoundedCornerShape(4.dp)
-                                )
+                                .neoBorder(width = 1.dp, color = neoColors.border, shape = RoundedCornerShape(4.dp))
+                                .background(neoColors.primary, RoundedCornerShape(4.dp))
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
-                        )
+                        ) {
+                            Text(
+                                text = res,
+                                fontFamily = TypewriterFontFamily,
+                                fontSize = 10.sp,
+                                color = neoColors.textPrimary
+                            )
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
@@ -147,16 +263,18 @@ fun DownloadLinkCard(
                     link.quality?.takeIf { it.isNotBlank() }?.let {
                         Text(
                             text = it,
+                            fontFamily = TypewriterFontFamily,
                             fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = neoColors.textSecondary
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                     }
                     link.size?.takeIf { it.isNotBlank() }?.let {
                         Text(
                             text = "($it)",
+                            fontFamily = TypewriterFontFamily,
                             fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = neoColors.textSecondary
                         )
                     }
                 }
@@ -168,9 +286,9 @@ fun DownloadLinkCard(
                     modifier = Modifier.size(36.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ContentCopy,
-                        contentDescription = "Copy Link",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        imageVector = NeubrutalismIcons.Copy,
+                        contentDescription = t("copy_link"),
+                        tint = neoColors.textPrimary,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -179,21 +297,35 @@ fun DownloadLinkCard(
 
                 Button(
                     onClick = onOpenLink,
+                    enabled = !isResolving,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (link.isTelegram) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                    )
+                        containerColor = if (link.isTelegram) neoColors.tertiary else neoColors.primary,
+                        contentColor = neoColors.textPrimary
+                    ),
+                    modifier = Modifier.neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(8.dp))
                 ) {
-                    Icon(
-                        imageVector = if (link.isTelegram) Icons.Default.Send else Icons.Default.Download,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = if (link.isTelegram) "Telegram" else "Download",
-                        fontSize = 13.sp
-                    )
+                    if (isResolving) {
+                        CircularProgressIndicator(
+                            color = neoColors.textPrimary,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = if (link.isTelegram) NeubrutalismIcons.Telegram else NeubrutalismIcons.Download,
+                            contentDescription = null,
+                            tint = neoColors.textPrimary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = if (link.isTelegram) t("telegram_action") else t("direct_download"),
+                            fontFamily = CartoonFontFamily,
+                            fontSize = 13.sp,
+                            color = neoColors.textPrimary
+                        )
+                    }
                 }
             }
         }
