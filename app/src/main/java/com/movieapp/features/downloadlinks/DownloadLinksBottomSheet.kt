@@ -224,9 +224,9 @@ fun DownloadLinksBottomSheet(
                             onOpenLink = {
                                 if (link.isTelegram) {
                                     // tg:// protocol instant launch
-                                    DownloadManagerHelper.openExternalLink(context, link)
+                                    DownloadManagerHelper.openTelegram(context, link.url ?: "")
                                 } else {
-                                    // In-App Direct Download with Ad Bypass Resolver
+                                    // In-App Direct Download with Ad/Timer Bypass Resolver
                                     val resolvingMsg = LocalizationManager.getString("resolving_link")
                                     coroutineScope.launch {
                                         resolvingLinkId = link.id
@@ -236,15 +236,26 @@ fun DownloadLinksBottomSheet(
                                         result.onSuccess { directUrl ->
                                             DownloadManagerHelper.startNativeDownload(context, title, directUrl)
                                         }.onFailure {
-                                            // Fallback to browser if scraper fails
+                                            // Fallback to browser if direct media stream cannot be verified
+                                            val fallbackMsg = LocalizationManager.getString("opening_browser_for_full_video")
+                                            Toast.makeText(context, fallbackMsg, Toast.LENGTH_LONG).show()
                                             DownloadManagerHelper.openExternalLink(context, link)
                                         }
                                     }
                                 }
                             },
                             onCopyLink = {
-                                link.url?.let {
-                                    DownloadManagerHelper.copyLinkToClipboard(context, link.cleanServerName, it)
+                                coroutineScope.launch {
+                                    val rawUrl = link.url?.trim() ?: return@launch
+                                    if (rawUrl.contains("megaup.net", ignoreCase = true)) {
+                                        Toast.makeText(context, LocalizationManager.getString("resolving_direct_link"), Toast.LENGTH_SHORT).show()
+                                        val resolved = DirectDownloadResolver.resolveDirectUrlForCopy(link)
+                                        val copyTarget = resolved.getOrDefault(rawUrl)
+                                        DownloadManagerHelper.copyLinkToClipboard(context, link.cleanServerName, copyTarget)
+                                        Toast.makeText(context, LocalizationManager.getString("direct_link_copied"), Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        DownloadManagerHelper.copyLinkToClipboard(context, link.cleanServerName, rawUrl)
+                                    }
                                 }
                             }
                         )
