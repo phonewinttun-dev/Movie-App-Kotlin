@@ -2,6 +2,7 @@ package com.movieapp.features.moviedetail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,16 +16,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +49,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.movieapp.features.downloadlinks.DownloadLinkDTO
+import com.movieapp.features.downloadlinks.DownloadLinksBottomSheet
 import com.movieapp.theme.NeoBlack
 import com.movieapp.theme.NeoButton
 import com.movieapp.theme.NeoCyan
@@ -50,6 +61,7 @@ import com.movieapp.theme.NeoYellow
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoShadow
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieDetailScreen(
     viewModel: MovieDetailViewModel,
@@ -58,6 +70,20 @@ fun MovieDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
+
+    var showDownloadSheet by remember { mutableStateOf(false) }
+    var downloadSheetTitle by remember { mutableStateOf("") }
+    var currentDownloadLinks by remember { mutableStateOf<List<DownloadLinkDTO>>(emptyList()) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    if (showDownloadSheet) {
+        DownloadLinksBottomSheet(
+            title = downloadSheetTitle,
+            downloadLinks = currentDownloadLinks,
+            sheetState = sheetState,
+            onDismiss = { showDownloadSheet = false }
+        )
+    }
 
     Column(
         modifier = modifier
@@ -85,9 +111,9 @@ fun MovieDetailScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    androidx.compose.material3.Icon(
-                        imageVector = com.movieapp.theme.Heroicons.ArrowLeft,
-                        contentDescription = null,
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
                         tint = NeoBlack,
                         modifier = Modifier.size(16.dp)
                     )
@@ -232,8 +258,8 @@ fun MovieDetailScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
-                                androidx.compose.material3.Icon(
-                                    imageVector = com.movieapp.theme.Heroicons.Star,
+                                Icon(
+                                    imageVector = Icons.Default.Star,
                                     contentDescription = null,
                                     tint = NeoBlack,
                                     modifier = Modifier.size(13.dp)
@@ -242,6 +268,44 @@ fun MovieDetailScreen(
                                     text = detail.formattedRating,
                                     fontWeight = FontWeight.Black,
                                     fontSize = 12.sp,
+                                    color = NeoBlack
+                                )
+                            }
+                        }
+                    }
+
+                    // Download Button for Movies
+                    if (!uiState.isTvShow) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .neoShadow(offsetX = 3.dp, offsetY = 3.dp, shape = RoundedCornerShape(10.dp))
+                                .background(NeoYellow, RoundedCornerShape(10.dp))
+                                .neoBorder(shape = RoundedCornerShape(10.dp))
+                                .clickable {
+                                    downloadSheetTitle = detail.displayTitle
+                                    currentDownloadLinks = detail.safeMovieDownloadLinks
+                                    showDownloadSheet = true
+                                }
+                                .padding(vertical = 12.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Download,
+                                    contentDescription = null,
+                                    tint = NeoBlack,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Get Download Links (${detail.safeMovieDownloadLinks.size})",
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 14.sp,
                                     color = NeoBlack
                                 )
                             }
@@ -303,7 +367,7 @@ fun MovieDetailScreen(
                         }
                     }
 
-                    // TV Shows: Seasons and Episodes (US-07)
+                    // TV Shows: Seasons and Episodes
                     if (uiState.isTvShow && detail.safeSeasons.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
@@ -354,7 +418,7 @@ fun MovieDetailScreen(
 
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        // Episode Cards List
+                        // Episode Cards List with Download Action
                         uiState.activeSeason?.safeEpisodes?.forEach { episode ->
                             Box(
                                 modifier = Modifier
@@ -363,6 +427,11 @@ fun MovieDetailScreen(
                                     .neoShadow(offsetX = 2.dp, offsetY = 2.dp, shape = RoundedCornerShape(10.dp))
                                     .background(NeoWhite, RoundedCornerShape(10.dp))
                                     .neoBorder(width = 2.dp, shape = RoundedCornerShape(10.dp))
+                                    .clickable {
+                                        downloadSheetTitle = "${detail.displayTitle} - ${episode.displayTitle}"
+                                        currentDownloadLinks = episode.safeDownloadLinks
+                                        showDownloadSheet = true
+                                    }
                                     .padding(12.dp)
                             ) {
                                 Row(
@@ -395,12 +464,22 @@ fun MovieDetailScreen(
                                             color = NeoBlack
                                         )
                                     }
-                                    episode.runtime?.let {
-                                        Text(
-                                            text = it,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(0xFF666666)
+
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        episode.runtime?.let {
+                                            Text(
+                                                text = it,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color(0xFF666666)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                        }
+                                        Icon(
+                                            imageVector = Icons.Default.Download,
+                                            contentDescription = "Download Episode",
+                                            tint = NeoBlack,
+                                            modifier = Modifier.size(18.dp)
                                         )
                                     }
                                 }

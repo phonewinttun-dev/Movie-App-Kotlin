@@ -9,7 +9,7 @@
 
 # Java class files
 *.class
-
+local.properties
 # Generated files
 bin/
 gen/
