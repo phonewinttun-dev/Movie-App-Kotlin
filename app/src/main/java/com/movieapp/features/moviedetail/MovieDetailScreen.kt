@@ -153,7 +153,7 @@ fun MovieDetailScreen(
                     val bookmarkBg = if (isBookmarked) neoColors.primary else neoColors.surface
                     Box(
                         modifier = Modifier
-                            .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
+                            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
                             .neoShadow(offsetX = 2.dp, offsetY = 2.dp, color = neoColors.shadow, shape = RoundedCornerShape(8.dp))
                             .background(bookmarkBg, RoundedCornerShape(8.dp))
                             .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(8.dp))
@@ -172,7 +172,7 @@ fun MovieDetailScreen(
                     ) {
                         Icon(
                             imageVector = if (isBookmarked) NeubrutalismIcons.Bookmark else NeubrutalismIcons.BookmarkBorder,
-                            contentDescription = if (isBookmarked) t("bookmark_removed") else t("bookmark_added"),
+                            contentDescription = if (isBookmarked) t("remove_bookmark") else t("add_bookmark"),
                             tint = neoColors.textPrimary,
                             modifier = Modifier.size(18.dp)
                         )
@@ -566,7 +566,7 @@ fun MovieDetailScreen(
                                         }
                                         Icon(
                                             imageVector = NeubrutalismIcons.Download,
-                                            contentDescription = t("download_episode"),
+                                            contentDescription = "${t("download_episode")}: ${episode.displayTitle}",
                                             tint = neoColors.textPrimary,
                                             modifier = Modifier.size(18.dp)
                                         )

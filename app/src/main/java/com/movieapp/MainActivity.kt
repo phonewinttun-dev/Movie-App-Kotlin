@@ -226,7 +226,7 @@ fun TopAppBarNeobrutalist(
             ) {
                 Icon(
                     imageVector = if (isDark) NeubrutalismIcons.LightMode else NeubrutalismIcons.DarkMode,
-                    contentDescription = if (isDark) "Switch to Light Mode" else "Switch to Dark Mode",
+                    contentDescription = if (isDark) t("theme_light") else t("theme_dark"),
                     tint = neoColors.textPrimary,
                     modifier = Modifier.size(18.dp)
                 )
@@ -256,7 +256,7 @@ fun TopAppBarNeobrutalist(
                 )
             }
 
-            // Language Toggle (EN / MY)
+            // Language Toggle (Icon Only)
             Box(
                 modifier = Modifier
                     .defaultMinSize(minWidth = 38.dp, minHeight = 38.dp)
@@ -268,27 +268,15 @@ fun TopAppBarNeobrutalist(
                         role = Role.Button
                         selected = currentLang == AppLanguage.MY
                     }
-                    .padding(horizontal = 6.dp, vertical = 6.dp),
+                    .padding(8.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
-                ) {
-                    Icon(
-                        imageVector = NeubrutalismIcons.Language,
-                        contentDescription = "Toggle Language",
-                        tint = neoColors.textPrimary,
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Text(
-                        text = if (currentLang == AppLanguage.EN) "EN" else "MY",
-                        fontFamily = CartoonFontFamily,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = neoColors.textPrimary
-                    )
-                }
+                Icon(
+                    imageVector = NeubrutalismIcons.Language,
+                    contentDescription = if (currentLang == AppLanguage.EN) t("lang_my") else t("lang_en"),
+                    tint = neoColors.textPrimary,
+                    modifier = Modifier.size(18.dp)
+                )
             }
 
             // Search Icon Button

@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -94,19 +96,64 @@ fun DownloadLinksBottomSheet(
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp, vertical = 8.dp)
         ) {
-            Text(
-                text = t("download_links"),
-                fontFamily = CartoonFontFamily,
-                fontSize = 18.sp,
-                color = neoColors.textPrimary
-            )
-            Text(
-                text = title,
-                fontFamily = YoeshinFontFamily,
-                fontSize = 13.sp,
-                color = neoColors.textSecondary,
-                modifier = Modifier.padding(top = 2.dp, bottom = 12.dp)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = t("download_links"),
+                        fontFamily = CartoonFontFamily,
+                        fontSize = 18.sp,
+                        color = neoColors.textPrimary
+                    )
+                    Text(
+                        text = title,
+                        fontFamily = YoeshinFontFamily,
+                        fontSize = 13.sp,
+                        color = neoColors.textSecondary,
+                        modifier = Modifier.padding(top = 2.dp, bottom = 12.dp)
+                    )
+                }
+
+                if (downloadLinks.size > 1) {
+                    Box(
+                        modifier = Modifier
+                            .defaultMinSize(minWidth = 48.dp, minHeight = 40.dp)
+                            .neoShadow(offsetX = 2.dp, offsetY = 2.dp, color = neoColors.shadow, shape = RoundedCornerShape(8.dp))
+                            .background(neoColors.primary, RoundedCornerShape(8.dp))
+                            .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(8.dp))
+                            .clickable {
+                                val allUrls = downloadLinks.mapNotNull { it.url }.filter { it.isNotBlank() }.joinToString("\n")
+                                DownloadManagerHelper.copyLinkToClipboard(context, title, allUrls)
+                                Toast.makeText(context, LocalizationManager.getString("all_links_copied"), Toast.LENGTH_SHORT).show()
+                            }
+                            .semantics { role = Role.Button }
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = NeubrutalismIcons.Copy,
+                                contentDescription = null,
+                                tint = neoColors.textPrimary,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Text(
+                                text = t("copy_all_links"),
+                                fontFamily = CartoonFontFamily,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = neoColors.textPrimary
+                            )
+                        }
+                    }
+                }
+            }
 
             // Resolution Filter Chips (720p / 1080p / 4K / All)
             if (availableResolutions.size > 2) {
