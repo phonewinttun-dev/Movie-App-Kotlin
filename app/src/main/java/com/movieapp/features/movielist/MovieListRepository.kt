@@ -26,7 +26,14 @@ class MovieListRepository(
             val response = apiService.getMovies(page)
             emit(Resource.Success(response))
         } catch (e: Exception) {
-            emit(Resource.Error("Unable to load movies right now. Please check your internet connection and try again."))
+            android.util.Log.e("MovieListRepository", "Failed to fetch movies: ${e.javaClass.simpleName}: ${e.message}", e)
+            val detail = e.localizedMessage?.takeIf { it.isNotBlank() }
+            val message = if (detail != null) {
+                "Unable to load movies ($detail). Please check your connection and try again."
+            } else {
+                "Unable to load movies right now. Please check your internet connection and try again."
+            }
+            emit(Resource.Error(message))
         }
     }.flowOn(ioDispatcher)
 
