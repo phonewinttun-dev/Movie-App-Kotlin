@@ -51,6 +51,7 @@ class DownloadE2ETest {
     }
 
     @Test
+    @Trait(category = "positive", secondary = "critical-path")
     fun downloadsScreen_displaysActiveTaskAndSwitchesTabs() {
         runBlocking {
             // Pre-populate with an active downloading task
@@ -91,6 +92,7 @@ class DownloadE2ETest {
     }
 
     @Test
+    @Trait(category = "positive", secondary = "smoke")
     fun downloadsScreen_displaysCompletedTaskWithPlayAction() {
         runBlocking {
             // Pre-populate with a completed download
@@ -126,6 +128,7 @@ class DownloadE2ETest {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
+    @Trait(category = "positive", secondary = "end-to-end")
     fun downloadBottomSheet_rendersTelegramAndWebOptions() {
         val testLinks = listOf(
             DownloadLinkDTO(
@@ -162,5 +165,36 @@ class DownloadE2ETest {
         composeTestRule.onNodeWithText("Hydra (2025)").assertIsDisplayed()
         composeTestRule.onNodeWithText("MegaUp").performScrollTo().assertIsDisplayed()
         composeTestRule.onAllNodes(androidx.compose.ui.test.hasText("Telegram"))[0].performScrollTo().assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    @Trait(category = "positive", secondary = "smoke")
+    fun downloadBottomSheet_rendersExternalDownloaderActionForWebLinks() {
+        val webOnlyLinks = listOf(
+            DownloadLinkDTO(
+                id = 20L,
+                resolution = "1080p",
+                size = "1.2 GB",
+                serverName = "Usersdrive",
+                url = "https://usersdrive.com/sample123.html"
+            )
+        )
+
+        composeTestRule.setContent {
+            MovieAppTheme {
+                val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                DownloadLinksBottomSheet(
+                    title = "Barreda (2026)",
+                    downloadLinks = webOnlyLinks,
+                    sheetState = sheetState,
+                    onDismiss = {}
+                )
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        // Verify 1DM / ADM content description is present for web link
+        composeTestRule.onNode(androidx.compose.ui.test.hasContentDescription("1DM / ADM")).assertIsDisplayed()
     }
 }

@@ -1,5 +1,6 @@
 package com.movieapp.features.downloadlinks
 
+import android.content.Context
 import com.movieapp.util.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,11 +24,48 @@ object DirectDownloadResolver {
     }
 
     /**
-     * Resolves a download link to an authenticated, verified direct video streaming URL.
-     * Guarantees that only authentic video streams are returned, rejecting HTML portal pages.
+     * Resolves a download link using the in-app WebView sniffer with native Chromium execution.
+     * Captures direct video streams, authenticated cookies, and user-agent headers.
+     */
+    suspend fun resolveDirectUrl(context: Context, downloadLink: DownloadLinkDTO): Result<SniffResult> = withContext(Dispatchers.IO) {
+        val rawUrl = downloadLink.url?.trim() ?: return@withContext Result.failure(Exception("Empty URL"))
+        if (rawUrl.isBlank()) return@withContext Result.failure(Exception("Empty URL"))
+
+        try {
+            // Fast path: if rawUrl is already a verified direct media stream
+            if (verifyDirectMediaUrl(rawUrl)) {
+                return@withContext Result.success(SniffResult(directUrl = rawUrl))
+            }
+
+            // In-app WebView stream sniffer (handles MegaUp timer, JS tokens, Cloudflare)
+            val sniffResult = WebViewDownloadSniffer.sniff(context, rawUrl)
+            if (sniffResult.isSuccess) {
+                return@withContext sniffResult
+            }
+
+            // Fallback: test static MegaUp link extraction
+            if (rawUrl.contains("megaup.net", ignoreCase = true)) {
+                val directCandidate = extractMegaUpDirectLink(rawUrl)
+                if (directCandidate.isSuccess) {
+                    val candidateUrl = directCandidate.getOrThrow()
+                    if (verifyDirectMediaUrl(candidateUrl)) {
+                        return@withContext Result.success(SniffResult(directUrl = candidateUrl))
+                    }
+                }
+            }
+
+            Result.failure(sniffResult.exceptionOrNull() ?: Exception("Direct video stream not found"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Legacy resolver overload without Context (used in unit tests / fast path).
      */
     suspend fun resolveDirectUrl(downloadLink: DownloadLinkDTO): Result<String> = withContext(Dispatchers.IO) {
         val rawUrl = downloadLink.url?.trim() ?: return@withContext Result.failure(Exception("Empty URL"))
+        if (rawUrl.isBlank()) return@withContext Result.failure(Exception("Empty URL"))
 
         try {
             if (rawUrl.contains("megaup.net", ignoreCase = true)) {
@@ -37,18 +75,14 @@ object DirectDownloadResolver {
                     if (verifyDirectMediaUrl(candidateUrl)) {
                         Result.success(candidateUrl)
                     } else {
-                        // Cloudflare challenge or auth required
                         Result.failure(Exception("Protected stream requires browser to complete full download"))
                     }
                 } else {
                     directCandidate
                 }
             } else if (isKnownWebPortal(rawUrl)) {
-                // Portals like Yoteshin (Google Drive OAuth) or Usersdrive (captcha) cannot be downloaded directly
-                // via background HTTP without user browser interaction
                 Result.failure(Exception("Portal requires authentication to download full movie"))
             } else {
-                // Verify if rawUrl is already a direct video stream
                 if (verifyDirectMediaUrl(rawUrl)) {
                     Result.success(rawUrl)
                 } else {
@@ -87,7 +121,8 @@ object DirectDownloadResolver {
      * Checks whether a URL belongs to a known web portal that hosts HTML landing pages.
      */
     fun isKnownWebPortal(url: String): Boolean {
-        val lower = url.lowercase()
+        val lower = url.lowercase().substringBefore("?")
+        if (lower.endsWith(".mp4") || lower.endsWith(".mkv") || lower.endsWith(".webm") || lower.endsWith(".avi")) return false
         return lower.contains("yoteshinportal.cc") ||
                 lower.contains("usersdrive.com") ||
                 lower.contains("bioscopeapp.com") ||

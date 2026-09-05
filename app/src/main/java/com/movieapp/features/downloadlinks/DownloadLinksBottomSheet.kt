@@ -1,6 +1,8 @@
 package com.movieapp.features.downloadlinks
 
 import android.widget.Toast
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -228,15 +230,21 @@ fun DownloadLinksBottomSheet(
                                     // tg:// protocol instant launch
                                     DownloadManagerHelper.openTelegram(context, link.url ?: "")
                                 } else {
-                                    // In-App Direct Download with Ad/Timer Bypass Resolver
+                                    // In-App Direct Download with Ad/Timer Bypass Sniffer
                                     val resolvingMsg = LocalizationManager.getString("resolving_link")
                                     coroutineScope.launch {
                                         resolvingLinkId = link.id
                                         Toast.makeText(context, resolvingMsg, Toast.LENGTH_SHORT).show()
-                                        val result = DirectDownloadResolver.resolveDirectUrl(link)
+                                        val result = DirectDownloadResolver.resolveDirectUrl(context, link)
                                         resolvingLinkId = null
-                                        result.onSuccess { directUrl ->
-                                            DownloadManagerHelper.startNativeDownload(context, title, directUrl)
+                                        result.onSuccess { sniffResult ->
+                                            DownloadManagerHelper.startNativeDownload(
+                                                context = context,
+                                                title = title,
+                                                directUrl = sniffResult.directUrl,
+                                                cookies = sniffResult.cookies,
+                                                userAgent = sniffResult.userAgent
+                                            )
                                         }.onFailure {
                                             // Fallback to browser if direct media stream cannot be verified
                                             val fallbackMsg = LocalizationManager.getString("opening_browser_for_full_video")
@@ -259,7 +267,17 @@ fun DownloadLinksBottomSheet(
                                         DownloadManagerHelper.copyLinkToClipboard(context, link.cleanServerName, rawUrl)
                                     }
                                 }
-                            }
+                            },
+                            onOpenInDownloader = if (!link.isTelegram) {
+                                {
+                                    val rawUrl = link.url?.trim() ?: ""
+                                    val launched = DownloadManagerHelper.openInExternalDownloader(context, rawUrl)
+                                    if (!launched) {
+                                        Toast.makeText(context, "1DM/ADM not installed. Opening in browser...", Toast.LENGTH_SHORT).show()
+                                        DownloadManagerHelper.openExternalLink(context, link)
+                                    }
+                                }
+                            } else null
                         )
                     }
                 }
@@ -273,7 +291,8 @@ fun DownloadLinkCard(
     link: DownloadLinkDTO,
     isResolving: Boolean = false,
     onOpenLink: () -> Unit,
-    onCopyLink: () -> Unit
+    onCopyLink: () -> Unit,
+    onOpenInDownloader: (() -> Unit)? = null
 ) {
     val neoColors = MaterialTheme.neoColors
 
@@ -342,6 +361,21 @@ fun DownloadLinkCard(
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
+                if (!link.isTelegram && onOpenInDownloader != null) {
+                    IconButton(
+                        onClick = onOpenInDownloader,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                            contentDescription = "1DM / ADM",
+                            tint = neoColors.textPrimary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
+
                 IconButton(
                     onClick = onCopyLink,
                     modifier = Modifier.size(36.dp)

@@ -87,13 +87,16 @@ object DownloadManagerHelper {
 
     /**
      * Enqueues a verified direct file URL to Android's native DownloadManager and persists to Room.
+     * Optionally attaches authenticated cookies and user-agent headers to bypass CDN hotlink protections.
      */
     fun startNativeDownload(
         context: Context,
         title: String,
         directUrl: String,
         movieSlug: String = "",
-        poster: String? = null
+        poster: String? = null,
+        cookies: String? = null,
+        userAgent: String? = null
     ): Long {
         if (DirectDownloadResolver.isKnownWebPortal(directUrl)) {
             Toast.makeText(context, "Cannot download portal page directly", Toast.LENGTH_SHORT).show()
@@ -119,22 +122,26 @@ object DownloadManagerHelper {
                 setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
                 setAllowedOverMetered(true)
                 setAllowedOverRoaming(true)
+                cookies?.takeIf { it.isNotBlank() }?.let { addRequestHeader("Cookie", it) }
+                userAgent?.takeIf { it.isNotBlank() }?.let { addRequestHeader("User-Agent", it) }
             }
 
             val downloadId = downloadManager.enqueue(request)
 
             // Persist record to Room database for active tracking and history
             CoroutineScope(Dispatchers.IO).launch {
-                val entity = DownloadEntity(
-                    downloadId = downloadId,
-                    title = title,
-                    movieSlug = movieSlug,
-                    poster = poster,
-                    fileName = fileName,
-                    status = DownloadManager.STATUS_PENDING,
-                    createdAt = System.currentTimeMillis()
-                )
-                AppDatabase.getInstance(context).downloadDao().insertOrUpdate(entity)
+                try {
+                    val entity = DownloadEntity(
+                        downloadId = downloadId,
+                        title = title,
+                        movieSlug = movieSlug,
+                        poster = poster,
+                        fileName = fileName,
+                        status = DownloadManager.STATUS_PENDING,
+                        createdAt = System.currentTimeMillis()
+                    )
+                    AppDatabase.getInstance(context).downloadDao().insertOrUpdate(entity)
+                } catch (_: Exception) {}
             }
 
             Toast.makeText(context, "${LocalizationManager.getString("download_started")}: $title", Toast.LENGTH_SHORT).show()
@@ -143,6 +150,56 @@ object DownloadManagerHelper {
             Toast.makeText(context, "Download failed to start: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
             -1L
         }
+    }
+
+    /**
+     * Packages for popular Android download managers (1DM / ADM) that possess
+     * built-in multithreaded download acceleration and web video sniffers.
+     */
+    val EXTERNAL_DOWNLOADER_PACKAGES = listOf(
+        "idm.internet.download.manager",
+        "idm.internet.download.manager.plus",
+        "idm.internet.download.manager.lite",
+        "com.dv.adm",
+        "com.dv.adm.pay"
+    )
+
+    /**
+     * Attempts to open the link directly in specialized download managers (1DM or ADM).
+     * If neither is installed, returns false so caller can fall back to browser or copy.
+     */
+    fun openInExternalDownloader(context: Context, url: String): Boolean {
+        val trimmed = url.trim()
+        if (trimmed.isBlank()) return false
+
+        val uri = Uri.parse(trimmed)
+        for (pkg in EXTERNAL_DOWNLOADER_PACKAGES) {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                    setPackage(pkg)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(intent)
+                return true
+            } catch (_: Exception) {
+                // Not installed or cannot handle, try next package
+            }
+        }
+        return false
+    }
+
+    /**
+     * Checks if 1DM or ADM is installed on the device.
+     */
+    fun isExternalDownloaderAvailable(context: Context): Boolean {
+        val pm = context.packageManager
+        for (pkg in EXTERNAL_DOWNLOADER_PACKAGES) {
+            try {
+                pm.getPackageInfo(pkg, 0)
+                return true
+            } catch (_: Exception) {}
+        }
+        return false
     }
 
     /**
