@@ -54,11 +54,10 @@ import com.movieapp.features.search.SearchScreen
 import com.movieapp.features.search.SearchViewModel
 import com.movieapp.navigation.Screen
 import com.movieapp.theme.AppThemeController
-import com.movieapp.theme.BlackTofuFontFamily
-import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.MovieAppTheme
 import com.movieapp.theme.NeubrutalismIcons
-import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.bodyFontFamily
+import com.movieapp.theme.buttonFontFamily
 import com.movieapp.theme.headerFontFamily
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoColors
@@ -233,9 +232,9 @@ fun TopAppBarNeobrutalist() {
                 Spacer(modifier = Modifier.height(1.dp))
                 Text(
                     text = t("app_subtitle"),
-                    fontFamily = YoeshinFontFamily,
+                    fontFamily = bodyFontFamily(),
                     fontSize = 11.5.sp,
-                    lineHeight = 16.sp,
+                    lineHeight = 18.sp,
                     fontWeight = FontWeight.Normal,
                     color = neoColors.onPrimary
                 )
@@ -347,9 +346,9 @@ fun BottomNavigationNeobrutalist(
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(
                     text = label,
-                    fontFamily = CartoonFontFamily,
+                    fontFamily = buttonFontFamily(),
                     fontSize = 11.sp,
-                    lineHeight = 15.sp,
+                    lineHeight = 16.sp,
                     fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
                     color = contentColor,
                     maxLines = 1

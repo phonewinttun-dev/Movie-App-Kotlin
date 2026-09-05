@@ -54,10 +54,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.NeubrutalismIcons
-import com.movieapp.theme.TypewriterFontFamily
-import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.badgeFontFamily
+import com.movieapp.theme.bodyFontFamily
+import com.movieapp.theme.buttonFontFamily
+import com.movieapp.theme.headerFontFamily
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoColors
 import com.movieapp.theme.neoShadow
@@ -130,8 +131,9 @@ fun InteractiveDownloadSheet(
                         ) {
                             Text(
                                 text = link.cleanServerName,
-                                fontFamily = CartoonFontFamily,
+                                fontFamily = buttonFontFamily(),
                                 fontSize = 12.sp,
+                                lineHeight = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = neoColors.textPrimary
                             )
@@ -147,8 +149,9 @@ fun InteractiveDownloadSheet(
                             ) {
                                 Text(
                                     text = res,
-                                    fontFamily = TypewriterFontFamily,
+                                    fontFamily = badgeFontFamily(),
                                     fontSize = 11.sp,
+                                    lineHeight = 15.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = neoColors.onSecondary
                                 )
@@ -159,8 +162,9 @@ fun InteractiveDownloadSheet(
                         link.size?.takeIf { it.isNotBlank() }?.let { sizeStr ->
                             Text(
                                 text = "• $sizeStr",
-                                fontFamily = TypewriterFontFamily,
+                                fontFamily = badgeFontFamily(),
                                 fontSize = 11.sp,
+                                lineHeight = 15.sp,
                                 color = neoColors.textSecondary
                             )
                         }
@@ -170,8 +174,9 @@ fun InteractiveDownloadSheet(
 
                     Text(
                         text = title,
-                        fontFamily = YoeshinFontFamily,
+                        fontFamily = headerFontFamily(),
                         fontSize = 14.sp,
+                        lineHeight = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = neoColors.textPrimary,
                         maxLines = 1,
@@ -211,16 +216,18 @@ fun InteractiveDownloadSheet(
                 Column {
                     Text(
                         text = "Cloudflare စစ်ဆေးမှု (I am human) ပေါ်လာပါက နှိပ်ပေးပါ။",
-                        fontFamily = YoeshinFontFamily,
+                        fontFamily = bodyFontFamily(),
                         fontSize = 12.5.sp,
+                        lineHeight = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = neoColors.textPrimary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "အတည်ပြုပြီးပါက ဗီဒီယိုကို ဖုန်းထဲသို့ အလိုအလျောက် စတင်ဒေါင်းလုဒ်ဆွဲပေးပါမည်။",
-                        fontFamily = YoeshinFontFamily,
+                        fontFamily = bodyFontFamily(),
                         fontSize = 11.5.sp,
+                        lineHeight = 17.sp,
                         color = neoColors.textSecondary
                     )
                 }
@@ -402,8 +409,9 @@ fun InteractiveDownloadSheet(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Cancel & Choose Other Options (Browser / 1DM)",
-                        fontFamily = CartoonFontFamily,
+                        fontFamily = buttonFontFamily(),
                         fontSize = 13.sp,
+                        lineHeight = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }

@@ -53,12 +53,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.NeoBlack
 import com.movieapp.theme.NeoButton
 import com.movieapp.theme.NeubrutalismIcons
-import com.movieapp.theme.TypewriterFontFamily
-import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.badgeFontFamily
+import com.movieapp.theme.bodyFontFamily
+import com.movieapp.theme.buttonFontFamily
+import com.movieapp.theme.headerFontFamily
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoColors
 import com.movieapp.theme.neoShadow
@@ -164,16 +165,18 @@ fun MovieListScreen(
                         }
                         Text(
                             text = emptyTitle,
-                            fontFamily = CartoonFontFamily,
+                            fontFamily = headerFontFamily(),
                             fontSize = 16.sp,
+                            lineHeight = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color = neoColors.textPrimary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = t("search_empty_desc"),
-                            fontFamily = YoeshinFontFamily,
+                            fontFamily = bodyFontFamily(),
                             fontSize = 13.sp,
+                            lineHeight = 20.sp,
                             color = neoColors.textSecondary,
                             textAlign = TextAlign.Center
                         )
@@ -242,8 +245,9 @@ fun MovieListScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = errorText,
-                            fontFamily = YoeshinFontFamily,
+                            fontFamily = bodyFontFamily(),
                             fontSize = 13.sp,
+                            lineHeight = 18.sp,
                             fontWeight = FontWeight.Normal,
                             color = neoColors.textPrimary
                         )
@@ -306,7 +310,7 @@ fun InPageSearchBar(
                 value = query,
                 onValueChange = onQueryChange,
                 textStyle = TextStyle(
-                    fontFamily = CartoonFontFamily,
+                    fontFamily = bodyFontFamily(),
                     fontSize = 14.sp,
                     lineHeight = 20.sp,
                     fontWeight = FontWeight.Bold,
@@ -319,7 +323,7 @@ fun InPageSearchBar(
                         if (query.isEmpty()) {
                             Text(
                                 text = placeholder,
-                                fontFamily = CartoonFontFamily,
+                                fontFamily = bodyFontFamily(),
                                 fontSize = 14.sp,
                                 lineHeight = 20.sp,
                                 color = neoColors.textSecondary
@@ -399,7 +403,7 @@ private fun MovieGridCard(
         ) {
             AsyncImage(
                 model = imageRequest,
-                contentDescription = null,
+                contentDescription = "${item.displayTitle} poster",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -425,7 +429,7 @@ private fun MovieGridCard(
                     )
                     Text(
                         text = item.formattedRating,
-                        fontFamily = TypewriterFontFamily,
+                        fontFamily = badgeFontFamily(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp,
                         letterSpacing = 0.sp,
@@ -443,9 +447,10 @@ private fun MovieGridCard(
         ) {
             Text(
                 text = item.displayTitle,
-                fontFamily = CartoonFontFamily,
+                fontFamily = headerFontFamily(),
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.sp,
+                lineHeight = 18.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 color = neoColors.textPrimary
@@ -458,7 +463,7 @@ private fun MovieGridCard(
             ) {
                 Text(
                     text = item.displayYear,
-                    fontFamily = TypewriterFontFamily,
+                    fontFamily = badgeFontFamily(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 11.sp,
                     color = neoColors.textSecondary
@@ -474,9 +479,10 @@ private fun MovieGridCard(
                 ) {
                     Text(
                         text = typeLabel,
-                        fontFamily = TypewriterFontFamily,
+                        fontFamily = badgeFontFamily(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 10.5.sp,
+                        lineHeight = 15.sp,
                         letterSpacing = 0.sp,
                         color = neoColors.onPrimary
                     )

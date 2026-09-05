@@ -28,10 +28,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.NeubrutalismIcons
-import com.movieapp.theme.TypewriterFontFamily
-import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.badgeFontFamily
+import com.movieapp.theme.bodyFontFamily
+import com.movieapp.theme.buttonFontFamily
+import com.movieapp.theme.headerFontFamily
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoColors
 import com.movieapp.theme.neoShadow
@@ -71,8 +72,9 @@ fun DownloadFallbackDialog(
                 ) {
                     Text(
                         text = if (link.isYoteshin) "Yoteshin Download Options" else "Download Options",
-                        fontFamily = CartoonFontFamily,
+                        fontFamily = headerFontFamily(),
                         fontSize = 18.sp,
+                        lineHeight = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = neoColors.textPrimary
                     )
@@ -102,10 +104,10 @@ fun DownloadFallbackDialog(
                     } else {
                         "In-app stream could not be completed directly. Choose how you would like to download:"
                     },
-                    fontFamily = YoeshinFontFamily,
+                    fontFamily = bodyFontFamily(),
                     fontSize = 13.sp,
                     color = neoColors.textSecondary,
-                    lineHeight = 18.sp
+                    lineHeight = 20.sp
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
@@ -121,8 +123,9 @@ fun DownloadFallbackDialog(
                 ) {
                     Text(
                         text = link.cleanServerName,
-                        fontFamily = CartoonFontFamily,
+                        fontFamily = buttonFontFamily(),
                         fontSize = 13.sp,
+                        lineHeight = 17.sp,
                         fontWeight = FontWeight.Bold,
                         color = neoColors.textPrimary
                     )
@@ -130,8 +133,9 @@ fun DownloadFallbackDialog(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "($res)",
-                            fontFamily = TypewriterFontFamily,
+                            fontFamily = badgeFontFamily(),
                             fontSize = 11.sp,
+                            lineHeight = 15.sp,
                             color = neoColors.textSecondary
                         )
                     }
@@ -139,8 +143,9 @@ fun DownloadFallbackDialog(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "• $size",
-                            fontFamily = TypewriterFontFamily,
+                            fontFamily = badgeFontFamily(),
                             fontSize = 11.sp,
+                            lineHeight = 15.sp,
                             color = neoColors.textSecondary
                         )
                     }
@@ -174,8 +179,9 @@ fun DownloadFallbackDialog(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = "Open with Yoteshin Drive",
-                                fontFamily = CartoonFontFamily,
+                                fontFamily = buttonFontFamily(),
                                 fontSize = 14.sp,
+                                lineHeight = 18.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -209,8 +215,9 @@ fun DownloadFallbackDialog(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Open in Browser to Download",
-                            fontFamily = CartoonFontFamily,
+                            fontFamily = buttonFontFamily(),
                             fontSize = 14.sp,
+                            lineHeight = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -243,8 +250,9 @@ fun DownloadFallbackDialog(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Copy Link for 1DM / ADM",
-                            fontFamily = CartoonFontFamily,
+                            fontFamily = buttonFontFamily(),
                             fontSize = 14.sp,
+                            lineHeight = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }

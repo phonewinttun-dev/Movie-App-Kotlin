@@ -21,15 +21,21 @@ val TypewriterFontFamily = FontFamily(Font(R.font.typewriter_font, FontWeight.No
 val CartoonFontFamily = FontFamily(Font(R.font.cartoon_font, FontWeight.Bold))
 val YoeshinFontFamily = FontFamily(Font(R.font.yoeshin_font, FontWeight.Normal))
 
+// Full SIL Padauk font family with complete OpenType (mym2/mymr) complex shaping for Myanmar Unicode
+val PadaukFontFamily = FontFamily(
+    Font(R.font.padauk_regular, FontWeight.Normal),
+    Font(R.font.padauk_bold, FontWeight.Bold)
+)
+
 /**
  * Header font selector based on the active language:
- * - Myanmar (MY): Uses BlackTofuFontFamily for authentic blocky Myanmar hero styling.
- * - English (EN) & others: Uses CartoonFontFamily for a clean, cohesive comic pop display.
+ * - Myanmar (MY): Uses PadaukFontFamily for authentic, fully shaped OpenType Unicode rendering.
+ * - English (EN) & others: Uses CartoonFontFamily for comic book display.
  */
 @Composable
 fun headerFontFamily(): FontFamily {
     return if (com.movieapp.util.LocalizationManager.currentLanguage == com.movieapp.util.AppLanguage.MY) {
-        BlackTofuFontFamily
+        PadaukFontFamily
     } else {
         CartoonFontFamily
     }
@@ -37,15 +43,43 @@ fun headerFontFamily(): FontFamily {
 
 /**
  * Button and interactive label font selector based on the active language:
- * - Myanmar (MY): Uses YoeshinFontFamily so Myanmar text renders cleanly without English font fallback/clipping.
+ * - Myanmar (MY): Uses PadaukFontFamily (Bold) for clean, unclipped Burmese interactive labels.
  * - English (EN) & others: Uses CartoonFontFamily for comic book aesthetic.
  */
 @Composable
 fun buttonFontFamily(): FontFamily {
     return if (com.movieapp.util.LocalizationManager.currentLanguage == com.movieapp.util.AppLanguage.MY) {
-        YoeshinFontFamily
+        PadaukFontFamily
     } else {
         CartoonFontFamily
+    }
+}
+
+/**
+ * Body text font selector based on the active language:
+ * - Myanmar (MY): Uses PadaukFontFamily for smooth paragraph legibility without broken diacritics.
+ * - English (EN) & others: Uses YoeshinFontFamily or Default font.
+ */
+@Composable
+fun bodyFontFamily(): FontFamily {
+    return if (com.movieapp.util.LocalizationManager.currentLanguage == com.movieapp.util.AppLanguage.MY) {
+        PadaukFontFamily
+    } else {
+        YoeshinFontFamily
+    }
+}
+
+/**
+ * Badge and tag font selector:
+ * - Myanmar (MY): Uses PadaukFontFamily.
+ * - English (EN): Uses TypewriterFontFamily for monospaced retro look.
+ */
+@Composable
+fun badgeFontFamily(): FontFamily {
+    return if (com.movieapp.util.LocalizationManager.currentLanguage == com.movieapp.util.AppLanguage.MY) {
+        PadaukFontFamily
+    } else {
+        TypewriterFontFamily
     }
 }
 

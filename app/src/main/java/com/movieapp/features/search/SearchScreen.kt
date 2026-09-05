@@ -48,12 +48,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.movieapp.features.movielist.MovieDTO
-import com.movieapp.theme.BlackTofuFontFamily
-import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.NeoButton
 import com.movieapp.theme.NeubrutalismIcons
-import com.movieapp.theme.TypewriterFontFamily
-import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.badgeFontFamily
+import com.movieapp.theme.bodyFontFamily
+import com.movieapp.theme.buttonFontFamily
 import com.movieapp.theme.headerFontFamily
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoColors
@@ -127,8 +126,9 @@ fun SearchScreen(
                 value = uiState.query,
                 onValueChange = { viewModel.onQueryChange(it) },
                 textStyle = TextStyle(
-                    fontFamily = YoeshinFontFamily,
+                    fontFamily = bodyFontFamily(),
                     fontSize = 14.sp,
+                    lineHeight = 20.sp,
                     fontWeight = FontWeight.Normal,
                     color = neoColors.textPrimary
                 ),
@@ -145,8 +145,9 @@ fun SearchScreen(
                         if (uiState.query.isEmpty()) {
                             Text(
                                 text = t("search_placeholder"),
-                                fontFamily = YoeshinFontFamily,
+                                fontFamily = bodyFontFamily(),
                                 fontSize = 14.sp,
+                                lineHeight = 20.sp,
                                 fontWeight = FontWeight.Normal,
                                 color = neoColors.textSecondary
                             )
@@ -183,9 +184,10 @@ fun SearchScreen(
                         Text(
                             text = t("search_clear"),
                             color = neoColors.surface,
-                            fontFamily = CartoonFontFamily,
+                            fontFamily = buttonFontFamily(),
                             fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp
+                            fontSize = 11.sp,
+                            lineHeight = 16.sp
                         )
                     }
                 }
@@ -195,8 +197,9 @@ fun SearchScreen(
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = t("search_note"),
-            fontFamily = YoeshinFontFamily,
+            fontFamily = bodyFontFamily(),
             fontSize = 11.sp,
+            lineHeight = 16.sp,
             fontWeight = FontWeight.Normal,
             color = neoColors.textSecondary
         )
@@ -228,8 +231,9 @@ fun SearchScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = uiState.errorMessage ?: "",
-                            fontFamily = YoeshinFontFamily,
+                            fontFamily = bodyFontFamily(),
                             fontSize = 13.sp,
+                            lineHeight = 18.sp,
                             fontWeight = FontWeight.Normal,
                             color = neoColors.textPrimary
                         )
@@ -257,16 +261,18 @@ fun SearchScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = t("search_empty_title"),
-                            fontFamily = CartoonFontFamily,
+                            fontFamily = headerFontFamily(),
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp,
+                            lineHeight = 22.sp,
                             color = neoColors.textPrimary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = t("search_empty_desc"),
-                            fontFamily = YoeshinFontFamily,
+                            fontFamily = bodyFontFamily(),
                             fontSize = 12.sp,
+                            lineHeight = 18.sp,
                             fontWeight = FontWeight.Normal,
                             color = neoColors.textSecondary
                         )
@@ -286,16 +292,18 @@ fun SearchScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = t("search_prompt_title"),
-                            fontFamily = CartoonFontFamily,
+                            fontFamily = headerFontFamily(),
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp,
+                            lineHeight = 22.sp,
                             color = neoColors.textPrimary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = t("search_prompt_desc"),
-                            fontFamily = YoeshinFontFamily,
+                            fontFamily = bodyFontFamily(),
                             fontSize = 12.sp,
+                            lineHeight = 18.sp,
                             fontWeight = FontWeight.Normal,
                             color = neoColors.textSecondary
                         )
@@ -380,7 +388,7 @@ private fun SearchResultCard(
         ) {
             AsyncImage(
                 model = imageRequest,
-                contentDescription = null,
+                contentDescription = "${item.displayTitle} thumbnail",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -392,9 +400,10 @@ private fun SearchResultCard(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = item.displayTitle,
-                fontFamily = CartoonFontFamily,
+                fontFamily = headerFontFamily(),
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
+                lineHeight = 18.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 color = neoColors.textPrimary
@@ -402,8 +411,9 @@ private fun SearchResultCard(
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = "${item.displayYear} • Rating ${item.formattedRating}",
-                fontFamily = TypewriterFontFamily,
+                fontFamily = badgeFontFamily(),
                 fontSize = 11.sp,
+                lineHeight = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = neoColors.textSecondary
             )
@@ -424,9 +434,10 @@ private fun SearchResultCard(
         ) {
             Text(
                 text = badgeText,
-                fontFamily = TypewriterFontFamily,
+                fontFamily = badgeFontFamily(),
                 fontWeight = FontWeight.Bold,
                 fontSize = 10.5.sp,
+                lineHeight = 15.sp,
                 letterSpacing = 0.sp,
                 color = neoColors.textPrimary
             )

@@ -53,11 +53,12 @@ import coil.compose.AsyncImage
 import com.movieapp.MovieApplication
 import com.movieapp.data.local.MovieDao
 import com.movieapp.data.local.MovieEntity
-import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.NeoBlack
 import com.movieapp.theme.NeubrutalismIcons
-import com.movieapp.theme.TypewriterFontFamily
-import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.badgeFontFamily
+import com.movieapp.theme.bodyFontFamily
+import com.movieapp.theme.buttonFontFamily
+import com.movieapp.theme.headerFontFamily
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoColors
 import com.movieapp.theme.neoShadow
@@ -103,15 +104,17 @@ fun BookmarkScreen(
             // Heading
             Text(
                 text = t("bookmarks_title"),
-                fontFamily = CartoonFontFamily,
+                fontFamily = headerFontFamily(),
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
+                lineHeight = 24.sp,
                 color = neoColors.textPrimary
             )
             Text(
                 text = t("bookmarks_subtitle"),
-                fontFamily = YoeshinFontFamily,
+                fontFamily = bodyFontFamily(),
                 fontSize = 12.sp,
+                lineHeight = 18.sp,
                 color = neoColors.textSecondary,
                 modifier = Modifier.padding(top = 2.dp, bottom = 14.dp)
             )
@@ -141,16 +144,18 @@ fun BookmarkScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = t("bookmarks_empty_title"),
-                            fontFamily = CartoonFontFamily,
+                            fontFamily = headerFontFamily(),
                             fontSize = 16.sp,
+                            lineHeight = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color = neoColors.textPrimary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = t("bookmarks_empty_desc"),
-                            fontFamily = YoeshinFontFamily,
+                            fontFamily = bodyFontFamily(),
                             fontSize = 13.sp,
+                            lineHeight = 20.sp,
                             color = neoColors.textSecondary,
                             textAlign = TextAlign.Center
                         )
@@ -235,7 +240,7 @@ private fun BookmarkMovieCard(
         ) {
             AsyncImage(
                 model = imageRequest,
-                contentDescription = null,
+                contentDescription = "${item.title} poster",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -285,7 +290,7 @@ private fun BookmarkMovieCard(
                     )
                     Text(
                         text = rating,
-                        fontFamily = TypewriterFontFamily,
+                        fontFamily = badgeFontFamily(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp,
                         letterSpacing = 0.sp,
@@ -302,9 +307,10 @@ private fun BookmarkMovieCard(
         ) {
             Text(
                 text = item.title,
-                fontFamily = CartoonFontFamily,
+                fontFamily = headerFontFamily(),
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.sp,
+                lineHeight = 18.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 color = neoColors.textPrimary
@@ -317,13 +323,14 @@ private fun BookmarkMovieCard(
             ) {
                 Text(
                     text = item.releaseYear ?: "Unknown",
-                    fontFamily = TypewriterFontFamily,
+                    fontFamily = badgeFontFamily(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 11.sp,
                     color = neoColors.textSecondary
                 )
-                val typeLabel = if (item.isTvShow) t("badge_tv_show") else t("badge_movie")
-                val typeBg = if (item.isTvShow) neoColors.secondary else neoColors.primary
+                val isTv = item.isTvShow
+                val typeLabel = if (isTv) t("badge_tv_show") else t("badge_movie")
+                val typeBg = if (isTv) neoColors.secondary else neoColors.primary
                 Box(
                     modifier = Modifier
                         .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(4.dp))
@@ -332,9 +339,10 @@ private fun BookmarkMovieCard(
                 ) {
                     Text(
                         text = typeLabel,
-                        fontFamily = TypewriterFontFamily,
+                        fontFamily = badgeFontFamily(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 10.5.sp,
+                        lineHeight = 15.sp,
                         letterSpacing = 0.sp,
                         color = neoColors.onPrimary
                     )

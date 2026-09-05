@@ -51,11 +51,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.NeoBlack
 import com.movieapp.theme.NeubrutalismIcons
-import com.movieapp.theme.TypewriterFontFamily
-import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.badgeFontFamily
+import com.movieapp.theme.bodyFontFamily
+import com.movieapp.theme.buttonFontFamily
+import com.movieapp.theme.headerFontFamily
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoColors
 import com.movieapp.theme.neoShadow
@@ -126,8 +127,9 @@ fun DownloadLinksBottomSheet(
                     )
                     Text(
                         text = title,
-                        fontFamily = YoeshinFontFamily,
+                        fontFamily = bodyFontFamily(),
                         fontSize = 13.sp,
+                        lineHeight = 18.sp,
                         color = neoColors.textSecondary,
                         modifier = Modifier.padding(top = 2.dp, bottom = 12.dp)
                     )
@@ -222,8 +224,9 @@ fun DownloadLinksBottomSheet(
             if (filteredLinks.isEmpty()) {
                 Text(
                     text = t("no_download_links"),
-                    fontFamily = YoeshinFontFamily,
+                    fontFamily = bodyFontFamily(),
                     fontSize = 13.sp,
+                    lineHeight = 18.sp,
                     color = neoColors.textSecondary,
                     modifier = Modifier.padding(vertical = 24.dp)
                 )
@@ -429,8 +432,9 @@ fun DownloadLinkCard(
                     ) {
                         Text(
                             text = link.cleanServerName,
-                            fontFamily = CartoonFontFamily,
+                            fontFamily = buttonFontFamily(),
                             fontSize = 12.sp,
+                            lineHeight = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = serverTextColor,
                             maxLines = 1,
@@ -448,8 +452,9 @@ fun DownloadLinkCard(
                         ) {
                             Text(
                                 text = res,
-                                fontFamily = TypewriterFontFamily,
+                                fontFamily = badgeFontFamily(),
                                 fontSize = 11.sp,
+                                lineHeight = 15.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = neoColors.onSecondary,
                                 maxLines = 1,
@@ -468,8 +473,9 @@ fun DownloadLinkCard(
                         ) {
                             Text(
                                 text = qual,
-                                fontFamily = TypewriterFontFamily,
+                                fontFamily = badgeFontFamily(),
                                 fontSize = 10.sp,
+                                lineHeight = 14.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = neoColors.textSecondary,
                                 maxLines = 1,
@@ -489,8 +495,9 @@ fun DownloadLinkCard(
                     ) {
                         Text(
                             text = sizeStr,
-                            fontFamily = TypewriterFontFamily,
+                            fontFamily = badgeFontFamily(),
                             fontSize = 11.sp,
+                            lineHeight = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = neoColors.textPrimary
                         )

@@ -49,12 +49,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.movieapp.features.downloadlinks.DownloadLinkDTO
 import com.movieapp.features.downloadlinks.DownloadLinksBottomSheet
-import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.NeoBlack
 import com.movieapp.theme.NeoButton
 import com.movieapp.theme.NeubrutalismIcons
-import com.movieapp.theme.TypewriterFontFamily
-import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.badgeFontFamily
+import com.movieapp.theme.bodyFontFamily
+import com.movieapp.theme.buttonFontFamily
+import com.movieapp.theme.headerFontFamily
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoColors
 import com.movieapp.theme.neoShadow
@@ -138,8 +139,10 @@ fun MovieDetailScreen(
                         )
                         Text(
                             text = t("back_to_list"),
-                            fontFamily = CartoonFontFamily,
+                            fontFamily = buttonFontFamily(),
                             fontSize = 13.sp,
+                            lineHeight = 18.sp,
+                            fontWeight = FontWeight.Bold,
                             color = neoColors.textPrimary
                         )
                     }
@@ -191,8 +194,9 @@ fun MovieDetailScreen(
                     ) {
                         Text(
                             text = badgeText,
-                            fontFamily = TypewriterFontFamily,
+                            fontFamily = badgeFontFamily(),
                             fontSize = 11.sp,
+                            lineHeight = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = neoColors.onPrimary
                         )
@@ -218,8 +222,9 @@ fun MovieDetailScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = uiState.errorMessage ?: "",
-                            fontFamily = YoeshinFontFamily,
+                            fontFamily = bodyFontFamily(),
                             fontSize = 13.sp,
+                            lineHeight = 20.sp,
                             color = neoColors.textPrimary
                         )
                         Spacer(modifier = Modifier.height(12.dp))
@@ -269,8 +274,9 @@ fun MovieDetailScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = detail.displayTitle,
-                                fontFamily = CartoonFontFamily,
+                                fontFamily = headerFontFamily(),
                                 fontSize = 18.sp,
+                                lineHeight = 24.sp,
                                 color = neoColors.textPrimary,
                                 modifier = Modifier.semantics { heading() }
                             )
@@ -281,16 +287,18 @@ fun MovieDetailScreen(
                             ) {
                                 Text(
                                     text = detail.displayYear,
-                                    fontFamily = TypewriterFontFamily,
+                                    fontFamily = badgeFontFamily(),
                                     fontSize = 12.sp,
+                                    lineHeight = 16.sp,
                                     color = neoColors.textSecondary
                                 )
                                 detail.runtime?.let {
                                     Text(text = "•", color = neoColors.textSecondary)
                                     Text(
                                         text = it,
-                                        fontFamily = TypewriterFontFamily,
+                                        fontFamily = badgeFontFamily(),
                                         fontSize = 12.sp,
+                                        lineHeight = 16.sp,
                                         color = neoColors.textSecondary
                                     )
                                 }
@@ -316,8 +324,9 @@ fun MovieDetailScreen(
                                 )
                                 Text(
                                     text = detail.formattedRating,
-                                    fontFamily = TypewriterFontFamily,
+                                    fontFamily = badgeFontFamily(),
                                     fontSize = 12.sp,
+                                    lineHeight = 16.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = NeoBlack
                                 )
@@ -355,8 +364,9 @@ fun MovieDetailScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = t("get_download_links", detail.safeMovieDownloadLinks.size),
-                                    fontFamily = CartoonFontFamily,
+                                    fontFamily = buttonFontFamily(),
                                     fontSize = 14.sp,
+                                    lineHeight = 20.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = neoColors.onPrimary
                                 )
@@ -381,8 +391,9 @@ fun MovieDetailScreen(
                                 ) {
                                     Text(
                                         text = genre,
-                                        fontFamily = TypewriterFontFamily,
+                                        fontFamily = badgeFontFamily(),
                                         fontSize = 11.sp,
+                                        lineHeight = 16.sp,
                                         color = neoColors.textPrimary
                                     )
                                 }
@@ -403,17 +414,18 @@ fun MovieDetailScreen(
                         Column {
                             Text(
                                 text = t("story_summary"),
-                                fontFamily = CartoonFontFamily,
+                                fontFamily = headerFontFamily(),
                                 fontSize = 14.sp,
+                                lineHeight = 20.sp,
                                 color = neoColors.textPrimary,
                                 modifier = Modifier.semantics { heading() }
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
                                 text = detail.plot ?: t("no_summary"),
-                                fontFamily = YoeshinFontFamily,
+                                fontFamily = bodyFontFamily(),
                                 fontSize = 13.sp,
-                                lineHeight = 20.sp,
+                                lineHeight = 22.sp,
                                 color = neoColors.textSecondary
                             )
                         }
@@ -424,8 +436,9 @@ fun MovieDetailScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = t("choose_season_episode"),
-                            fontFamily = CartoonFontFamily,
+                            fontFamily = headerFontFamily(),
                             fontSize = 14.sp,
+                            lineHeight = 20.sp,
                             color = neoColors.textPrimary,
                             modifier = Modifier.semantics { heading() }
                         )
@@ -460,8 +473,9 @@ fun MovieDetailScreen(
                                 ) {
                                     Text(
                                         text = season.displayName,
-                                        fontFamily = CartoonFontFamily,
+                                        fontFamily = buttonFontFamily(),
                                         fontSize = 12.sp,
+                                        lineHeight = 16.sp,
                                         color = textCol
                                     )
                                 }
@@ -501,8 +515,9 @@ fun MovieDetailScreen(
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = t("download_full_season", activeEpisodes.size),
-                                        fontFamily = CartoonFontFamily,
+                                        fontFamily = buttonFontFamily(),
                                         fontSize = 13.sp,
+                                        lineHeight = 18.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = neoColors.onSecondary
                                     )
@@ -545,8 +560,9 @@ fun MovieDetailScreen(
                                         ) {
                                             Text(
                                                 text = "${episode.episodeNumber}",
-                                                fontFamily = TypewriterFontFamily,
+                                                fontFamily = badgeFontFamily(),
                                                 fontSize = 11.sp,
+                                                lineHeight = 15.sp,
                                                 fontWeight = FontWeight.Bold,
                                                 color = neoColors.onPrimary
                                             )
@@ -554,8 +570,9 @@ fun MovieDetailScreen(
                                         Spacer(modifier = Modifier.width(10.dp))
                                         Text(
                                             text = episode.displayTitle,
-                                            fontFamily = CartoonFontFamily,
+                                            fontFamily = headerFontFamily(),
                                             fontSize = 13.sp,
+                                            lineHeight = 18.sp,
                                             color = neoColors.textPrimary
                                         )
                                     }
@@ -564,8 +581,9 @@ fun MovieDetailScreen(
                                         episode.runtime?.let {
                                             Text(
                                                 text = it,
-                                                fontFamily = TypewriterFontFamily,
+                                                fontFamily = badgeFontFamily(),
                                                 fontSize = 11.sp,
+                                                lineHeight = 15.sp,
                                                 color = neoColors.textSecondary
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))

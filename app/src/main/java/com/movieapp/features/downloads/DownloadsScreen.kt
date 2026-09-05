@@ -51,11 +51,10 @@ import com.movieapp.data.local.DownloadDao
 import com.movieapp.data.local.DownloadEntity
 import com.movieapp.features.downloadlinks.DownloadManagerHelper
 import com.movieapp.features.downloadlinks.DownloadRepository
-import com.movieapp.theme.BlackTofuFontFamily
-import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.NeubrutalismIcons
-import com.movieapp.theme.TypewriterFontFamily
-import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.badgeFontFamily
+import com.movieapp.theme.bodyFontFamily
+import com.movieapp.theme.buttonFontFamily
 import com.movieapp.theme.headerFontFamily
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoColors
@@ -105,8 +104,9 @@ fun DownloadsScreen(
         )
         Text(
             text = t("downloads_subtitle"),
-            fontFamily = YoeshinFontFamily,
+            fontFamily = bodyFontFamily(),
             fontSize = 13.sp,
+            lineHeight = 18.sp,
             color = neoColors.textSecondary,
             modifier = Modifier.padding(top = 2.dp, bottom = 12.dp)
         )
@@ -157,8 +157,9 @@ fun DownloadsScreen(
                     ) {
                         Text(
                             text = label,
-                            fontFamily = CartoonFontFamily,
+                            fontFamily = buttonFontFamily(),
                             fontSize = 13.sp,
+                            lineHeight = 18.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             color = neoColors.textPrimary
                         )
@@ -171,8 +172,9 @@ fun DownloadsScreen(
                             ) {
                                 Text(
                                     text = count.toString(),
-                                    fontFamily = TypewriterFontFamily,
+                                    fontFamily = badgeFontFamily(),
                                     fontSize = 10.sp,
+                                    lineHeight = 14.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = neoColors.textPrimary
                                 )
@@ -263,16 +265,18 @@ fun ActiveDownloadCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = download.title,
-                        fontFamily = CartoonFontFamily,
+                        fontFamily = headerFontFamily(),
                         fontSize = 15.sp,
+                        lineHeight = 21.sp,
                         fontWeight = FontWeight.Bold,
                         color = neoColors.textPrimary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = download.fileName,
-                        fontFamily = TypewriterFontFamily,
+                        fontFamily = badgeFontFamily(),
                         fontSize = 11.sp,
+                        lineHeight = 15.sp,
                         color = neoColors.textSecondary
                     )
                 }
@@ -320,13 +324,14 @@ fun ActiveDownloadCard(
                 Column {
                     Text(
                         text = "${download.formattedDownloadedSize} / ${if (download.totalBytes > 0L) download.formattedTotalSize else "..."}",
-                        fontFamily = TypewriterFontFamily,
+                        fontFamily = badgeFontFamily(),
                         fontSize = 12.sp,
+                        lineHeight = 16.sp,
                         color = neoColors.textSecondary
                     )
                     Text(
                         text = "${download.progressPercentage}%",
-                        fontFamily = CartoonFontFamily,
+                        fontFamily = badgeFontFamily(),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Black,
                         color = neoColors.secondary
@@ -412,8 +417,9 @@ fun CompletedDownloadCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = download.title,
-                    fontFamily = CartoonFontFamily,
+                    fontFamily = headerFontFamily(),
                     fontSize = 15.sp,
+                    lineHeight = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = neoColors.textPrimary
                 )
@@ -427,8 +433,9 @@ fun CompletedDownloadCard(
                     ) {
                         Text(
                             text = download.formattedTotalSize,
-                            fontFamily = TypewriterFontFamily,
+                            fontFamily = badgeFontFamily(),
                             fontSize = 10.5.sp,
+                            lineHeight = 15.sp,
                             letterSpacing = 0.sp,
                             fontWeight = FontWeight.Bold,
                             color = neoColors.textPrimary
@@ -457,8 +464,9 @@ fun CompletedDownloadCard(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = t("open_movie"),
-                        fontFamily = CartoonFontFamily,
+                        fontFamily = buttonFontFamily(),
                         fontSize = 12.sp,
+                        lineHeight = 16.sp,
                         color = neoColors.textPrimary
                     )
                 }
@@ -509,16 +517,18 @@ fun EmptyStateCard(
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = title,
-                fontFamily = CartoonFontFamily,
+                fontFamily = headerFontFamily(),
                 fontSize = 16.sp,
+                lineHeight = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = neoColors.textPrimary
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = description,
-                fontFamily = YoeshinFontFamily,
+                fontFamily = bodyFontFamily(),
                 fontSize = 12.sp,
+                lineHeight = 18.sp,
                 color = neoColors.textSecondary
             )
         }

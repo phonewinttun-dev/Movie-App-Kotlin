@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 
 // Spider-Man Neobrutalism Solid Base Accents (Zero Gradients)
 val SpideyRed = Color(0xFFE23636)
-val SpideyRedDark = Color(0xFFFF334B)
+val SpideyRedDark = Color(0xFFE52E42)
 val SpideyBlue = Color(0xFF0055FF)
 val SpideyBlueDark = Color(0xFF2563EB)
 val WebGold = Color(0xFFFFC700)
