@@ -13,6 +13,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.movieapp.data.local.AppDatabase
 import com.movieapp.data.local.DownloadDao
 import com.movieapp.data.local.DownloadEntity
+import com.movieapp.features.downloadlinks.DownloadFallbackDialog
 import com.movieapp.features.downloadlinks.DownloadLinkDTO
 import com.movieapp.features.downloadlinks.DownloadLinksBottomSheet
 import com.movieapp.features.downloads.DownloadsScreen
@@ -78,7 +79,12 @@ class DownloadE2ETest {
         // 1. Verify header
         composeTestRule.onNodeWithText("Downloads").assertIsDisplayed()
 
-        // 2. Verify active download task is visible under Downloading tab
+        // 2. Wait for async Room Flow to emit active download task
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(androidx.compose.ui.test.hasText("Hydra (2025)")).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Verify active download task is visible under Downloading tab
         composeTestRule.onNodeWithText("Hydra (2025)").assertIsDisplayed()
         composeTestRule.onNodeWithText("Hydra_720p.mp4").assertIsDisplayed()
         composeTestRule.onNodeWithText("45%").assertIsDisplayed()
@@ -196,5 +202,52 @@ class DownloadE2ETest {
 
         // Verify 1DM / ADM content description is present for web link
         composeTestRule.onNode(androidx.compose.ui.test.hasContentDescription("1DM / ADM")).assertIsDisplayed()
+    }
+
+    @Test
+    @Trait(category = "positive", secondary = "end-to-end")
+    fun downloadFallbackDialog_rendersChoicesAndDispatchesCallbacks() {
+        val testLink = DownloadLinkDTO(
+            id = 99L,
+            resolution = "1080p",
+            size = "1.1 GB",
+            serverName = "MegaUp",
+            url = "https://megaup.net/sample123"
+        )
+
+        var browserClicked = false
+        var copyClicked = false
+        var dismissClicked = false
+
+        composeTestRule.setContent {
+            MovieAppTheme {
+                DownloadFallbackDialog(
+                    link = testLink,
+                    onOpenInBrowser = { browserClicked = true },
+                    onCopyLink = { copyClicked = true },
+                    onDismiss = { dismissClicked = true }
+                )
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        // 1. Verify Dialog Title & Badges
+        composeTestRule.onNodeWithText("Download Options").assertIsDisplayed()
+        composeTestRule.onNodeWithText("MegaUp").assertIsDisplayed()
+        composeTestRule.onNodeWithText("(1080p)").assertIsDisplayed()
+
+        // 2. Verify Choice 1: "Open in Browser to Download"
+        composeTestRule.onNodeWithText("Open in Browser to Download").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Open in Browser to Download").performClick()
+        org.junit.Assert.assertTrue("Open in Browser callback must be invoked", browserClicked)
+
+        // 3. Verify Choice 2: "Copy Link for 1DM / ADM"
+        composeTestRule.onNodeWithText("Copy Link for 1DM / ADM").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Copy Link for 1DM / ADM").performClick()
+        org.junit.Assert.assertTrue("Copy Link callback must be invoked", copyClicked)
+
+        // 4. Verify Close action
+        composeTestRule.onNode(androidx.compose.ui.test.hasContentDescription("Close")).performClick()
+        org.junit.Assert.assertTrue("Dismiss callback must be invoked", dismissClicked)
     }
 }

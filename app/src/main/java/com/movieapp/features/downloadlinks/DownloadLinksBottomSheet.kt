@@ -91,12 +91,16 @@ fun DownloadLinksBottomSheet(
 
     var resolvingLinkId by remember { mutableStateOf<Long?>(null) }
     var resolvingJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    var interactiveLink by remember { mutableStateOf<DownloadLinkDTO?>(null) }
+    var fallbackLink by remember { mutableStateOf<DownloadLinkDTO?>(null) }
 
     ModalBottomSheet(
         onDismissRequest = {
             resolvingJob?.cancel()
             resolvingJob = null
             resolvingLinkId = null
+            interactiveLink = null
+            fallbackLink = null
             onDismiss()
         },
         sheetState = sheetState,
@@ -244,6 +248,9 @@ fun DownloadLinksBottomSheet(
                                 if (link.isTelegram) {
                                     // tg:// protocol instant launch
                                     DownloadManagerHelper.openTelegram(context, link.url ?: "")
+                                } else if (link.url?.contains("megaup.net", ignoreCase = true) == true) {
+                                    // MegaUp requires interactive Cloudflare Turnstile human verification
+                                    interactiveLink = link
                                 } else {
                                     // In-App Direct Download with Ad/Timer Bypass Sniffer
                                     val resolvingMsg = LocalizationManager.getString("resolving_link")
@@ -263,10 +270,8 @@ fun DownloadLinksBottomSheet(
                                                 userAgent = sniffResult.userAgent
                                             )
                                         }.onFailure {
-                                            // Fallback to browser if direct media stream cannot be verified
-                                            val fallbackMsg = LocalizationManager.getString("opening_browser_for_full_video")
-                                            Toast.makeText(context, fallbackMsg, Toast.LENGTH_LONG).show()
-                                            DownloadManagerHelper.openExternalLink(context, link)
+                                            // Fallback dialog giving user the 2 explicit choices
+                                            fallbackLink = link
                                         }
                                     }
                                 }
@@ -300,6 +305,50 @@ fun DownloadLinksBottomSheet(
                 }
             }
         }
+    }
+
+    // Interactive Cloudflare Turnstile human verification sheet
+    interactiveLink?.let { targetLink ->
+        InteractiveDownloadSheet(
+            link = targetLink,
+            title = title,
+            onStreamResolved = { sniffResult ->
+                interactiveLink = null
+                DownloadManagerHelper.startNativeDownload(
+                    context = context,
+                    title = title,
+                    directUrl = sniffResult.directUrl,
+                    cookies = sniffResult.cookies,
+                    userAgent = sniffResult.userAgent
+                )
+            },
+            onDismissWithFallback = {
+                interactiveLink = null
+                fallbackLink = targetLink
+            }
+        )
+    }
+
+    // 2-choice Fallback Dialog (Open in Browser or Copy Link for 1DM/ADM)
+    fallbackLink?.let { targetLink ->
+        DownloadFallbackDialog(
+            link = targetLink,
+            onOpenInBrowser = {
+                val lk = targetLink
+                fallbackLink = null
+                DownloadManagerHelper.openExternalLink(context, lk)
+            },
+            onCopyLink = {
+                val lk = targetLink
+                fallbackLink = null
+                val rawUrl = lk.url ?: ""
+                DownloadManagerHelper.copyLinkToClipboard(context, lk.cleanServerName, rawUrl)
+                DownloadManagerHelper.openInExternalDownloader(context, rawUrl)
+            },
+            onDismiss = {
+                fallbackLink = null
+            }
+        )
     }
 }
 

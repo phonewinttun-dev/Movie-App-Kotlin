@@ -53,6 +53,17 @@ class WebViewSnifferUnitTest {
     }
 
     @Test
+    @Trait(category = "negative", secondary = "boundary")
+    fun testSnifferMediaDetection_cloudflareChallengesAndHtml_explicitlyRejected() {
+        // Cloudflare challenge URLs, Turnstile scripts, and HTML responses must NEVER be recognized as media streams
+        assertFalse(WebViewDownloadSniffer.isMediaStream("https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/if/ov2/av0/rcv0/0/sample", null))
+        assertFalse(WebViewDownloadSniffer.isMediaStream("https://challenges.cloudflare.com/turnstile/v0/api.js", "text/javascript"))
+        assertFalse(WebViewDownloadSniffer.isMediaStream("https://megaup.net/cdn-cgi/challenge-platform/h/b/scripts/p.js", null))
+        assertFalse(WebViewDownloadSniffer.isMediaStream("https://download.megaup.net/?url=https%3A%2F%2Fstorage.com", "text/html"))
+        assertFalse(WebViewDownloadSniffer.isMediaStream("https://download.megaup.net/?cf_chl_tk=123", "text/html"))
+    }
+
+    @Test
     @Trait(category = "positive", secondary = "boundary")
     fun testSnifferMediaDetection_downloadEndpoints_recognized() {
         assertTrue(WebViewDownloadSniffer.isMediaStream("https://download.megaup.net/?url=abc", "application/octet-stream"))

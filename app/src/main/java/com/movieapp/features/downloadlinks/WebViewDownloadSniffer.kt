@@ -47,6 +47,22 @@ object WebViewDownloadSniffer {
         val cleanUrl = url?.lowercase()?.trim() ?: ""
         val cleanMime = mimeType?.lowercase()?.trim() ?: ""
 
+        // Immediate rejection for Cloudflare challenge pages, captcha frames, and web pages
+        if (cleanUrl.contains("challenges.cloudflare.com") ||
+            cleanUrl.contains("cf-chl") ||
+            cleanUrl.contains("/cdn-cgi/") ||
+            cleanUrl.contains("challenge-platform") ||
+            cleanUrl.contains(".html") ||
+            cleanUrl.contains(".php")
+        ) {
+            return false
+        }
+
+        // Rejection for text/json/html MIME types
+        if (cleanMime == "text/html" || cleanMime == "text/plain" || cleanMime == "application/json") {
+            return false
+        }
+
         // Immediate MIME type matches
         if (cleanMime.startsWith("video/") ||
             cleanMime == "application/x-matroska" ||
@@ -62,7 +78,7 @@ object WebViewDownloadSniffer {
             pathWithoutQuery.endsWith(".webm") ||
             pathWithoutQuery.endsWith(".avi")
         ) {
-            return !cleanUrl.contains(".html") && !cleanUrl.contains(".php")
+            return true
         }
 
         // Download endpoints often used by file hosts
