@@ -31,7 +31,7 @@
 
 ## Overview
 
-**YoteShinZone (ရုပ်ရှင်ဇုန်)** is a student hobby project developed as a final coursework submission for our university's **CS-706: Emerging Technology (Mobile Platforms)**.
+**YoteShinZone (ရုပ်ရှင်ဇုန်)** is a student hobby project developed as a final coursework submission for our university's **CS-706: Emerging Technology (Mobile Platforms)** course.
 
 This project was built to explore and experiment with modern Android development—specifically building a complete UI using **Jetpack Compose** and **Material 3**, trying out a comic-inspired **Spider-Man Neobrutalism** design language, and organizing code using **MVVM with Unidirectional Data Flow (UDF)**.
 
@@ -270,7 +270,8 @@ Contributions are what make the open-source community an incredible place to lea
 
 <div align="center">
 
-**Crafted by ArtificalPunks**  
+**Crafted with ❤️ by ArtificalPunks**
+
 If you enjoyed this project, don't forget to give it a star on GitHub!
 
 </div>

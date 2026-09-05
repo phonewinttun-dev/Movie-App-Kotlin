@@ -7,50 +7,53 @@ This document defines the official visual design language, color palette, typogr
 ## 1. Core Color Palettes
 
 ### 1.1 Spider-Man Solid Base Accents
+
 All colors are solid, vivid, and flat. **Zero blur and zero gradients** are used anywhere in the app.
 
-| Token | Hex (Light Mode) | Hex (Dark Mode) | Role & Semantics |
-| :--- | :--- | :--- | :--- |
-| **Spidey Red** (`primary`) | `#E23636` | `#FF334B` | Primary brand accent: Top App Bar, primary CTAs ("Watch", "Download", "Save"), active navigation tab. |
-| **Spidey Blue** (`secondary`) | `#0055FF` | `#2563EB` | Secondary brand accent: TV series & episode tags, secondary actions ("Direct Download", "Copy All"), active search outline, download progress. |
-| **Web Gold** (`tertiary`) | `#FFC700` | `#FBBF24` | Rating stars, IMDb scores, highlighted badges, alert notices. |
-| **Web Black** (`border` / `shadow`) | `#000000` | `#000000` | Signature Neobrutalism hard borders and offset drop shadows. |
-| **Web White** | `#FFFFFF` | `#FFFFFF` | Pure white for card surfaces (light mode) and high-contrast text on primary colors. |
+| Token                               | Hex (Light Mode) | Hex (Dark Mode) | Role & Semantics                                                                                                                               |
+| :---------------------------------- | :--------------- | :-------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Spidey Red** (`primary`)          | `#E23636`        | `#FF334B`       | Primary brand accent: Top App Bar, primary CTAs ("Watch", "Download", "Save"), active navigation tab.                                          |
+| **Spidey Blue** (`secondary`)       | `#0055FF`        | `#2563EB`       | Secondary brand accent: TV series & episode tags, secondary actions ("Direct Download", "Copy All"), active search outline, download progress. |
+| **Web Gold** (`tertiary`)           | `#FFC700`        | `#FBBF24`       | Rating stars, IMDb scores, highlighted badges, alert notices.                                                                                  |
+| **Web Black** (`border` / `shadow`) | `#000000`        | `#000000`       | Signature Neobrutalism hard borders and offset drop shadows.                                                                                   |
+| **Web White**                       | `#FFFFFF`        | `#FFFFFF`       | Pure white for card surfaces (light mode) and high-contrast text on primary colors.                                                            |
 
 ---
 
 ### 1.2 Light Mode: Classic Spider-Man Suit
+
 Evokes the classic bright red, blue, and clean web styling of Peter Parker's comic suit.
 
-| Token | Color Value | Usage |
-| :--- | :--- | :--- |
-| `background` | `#F8F9FD` | Crisp, cool off-white canvas preventing harsh eye strain. |
-| `surface` | `#FFFFFF` | Card backgrounds, search container, bottom navigation bar. |
-| `surfaceMuted` | `#EEF2F9` | Poster image placeholders, disabled states, unselected chip backgrounds. |
-| `textPrimary` | `#0F172A` | Primary readable text (Deep Charcoal/Black, contrast ratio > 12:1). |
-| `textSecondary` | `#475569` | Subtitles, release years, episode numbers, helper text (contrast ratio > 5.5:1). |
-| `border` | `#000000` | Solid 2dp to 2.5dp black borders on cards, buttons, and inputs. |
-| `shadow` | `#000000` | Hard 3dp to 4dp drop shadow offset to bottom-right `(3.dp, 3.dp)`. |
-| `error` | `#C62828` | Error alerts and destructive actions. |
-| `errorBackground` | `#FFEBEE` | Soft warning/error banner background. |
+| Token             | Color Value | Usage                                                                            |
+| :---------------- | :---------- | :------------------------------------------------------------------------------- |
+| `background`      | `#F8F9FD`   | Crisp, cool off-white canvas preventing harsh eye strain.                        |
+| `surface`         | `#FFFFFF`   | Card backgrounds, search container, bottom navigation bar.                       |
+| `surfaceMuted`    | `#EEF2F9`   | Poster image placeholders, disabled states, unselected chip backgrounds.         |
+| `textPrimary`     | `#0F172A`   | Primary readable text (Deep Charcoal/Black, contrast ratio > 12:1).              |
+| `textSecondary`   | `#475569`   | Subtitles, release years, episode numbers, helper text (contrast ratio > 5.5:1). |
+| `border`          | `#000000`   | Solid 2dp to 2.5dp black borders on cards, buttons, and inputs.                  |
+| `shadow`          | `#000000`   | Hard 3dp to 4dp drop shadow offset to bottom-right `(3.dp, 3.dp)`.               |
+| `error`           | `#C62828`   | Error alerts and destructive actions.                                            |
+| `errorBackground` | `#FFEBEE`   | Soft warning/error banner background.                                            |
 
 ---
 
 ### 1.3 Dark Mode: Symbiote & Stealth Suit
+
 Inspired by the sleek Black Symbiote suit and Miles Morales' stealth aesthetic.
 
-| Token | Color Value | Usage |
-| :--- | :--- | :--- |
-| `background` | `#0A0E17` | Deep obsidian canvas. |
-| `surface` | `#121826` | Elevated dark cards, sheet dialogs, bottom bar container. |
-| `surfaceMuted` | `#1A2234` | Poster skeleton placeholders, secondary dark cards. |
-| `textPrimary` | `#F8FAFC` | Bright crisp white text for maximum readability. |
-| `textSecondary` | `#94A3B8` | Cool slate secondary text (contrast ratio > 6:1). |
-| `border` | `#000000` | Consistent 2dp to 2.5dp solid black borders. |
-| `shadow` | `#000000` | Deep black Neobrutalism shadow. |
-| `primary` | `#FF334B` | High-vibrancy neon Spider-Man red tailored for dark backgrounds. |
-| `secondary` | `#2563EB` | Electric cobalt blue for TV series chips, links, and progress. |
-| `tertiary` | `#FBBF24` | High-contrast gold for rating badges. |
+| Token           | Color Value | Usage                                                            |
+| :-------------- | :---------- | :--------------------------------------------------------------- |
+| `background`    | `#0A0E17`   | Deep obsidian canvas.                                            |
+| `surface`       | `#121826`   | Elevated dark cards, sheet dialogs, bottom bar container.        |
+| `surfaceMuted`  | `#1A2234`   | Poster skeleton placeholders, secondary dark cards.              |
+| `textPrimary`   | `#F8FAFC`   | Bright crisp white text for maximum readability.                 |
+| `textSecondary` | `#94A3B8`   | Cool slate secondary text (contrast ratio > 6:1).                |
+| `border`        | `#000000`   | Consistent 2dp to 2.5dp solid black borders.                     |
+| `shadow`        | `#000000`   | Deep black Neobrutalism shadow.                                  |
+| `primary`       | `#FF334B`   | High-vibrancy neon Spider-Man red tailored for dark backgrounds. |
+| `secondary`     | `#2563EB`   | Electric cobalt blue for TV series chips, links, and progress.   |
+| `tertiary`      | `#FBBF24`   | High-contrast gold for rating badges.                            |
 
 ---
 
@@ -82,10 +85,12 @@ Spider-Man’s iconic color harmony relies on the balance between **Red** (energ
 ## 3. UI Redesign: Clean Neobrutalist Bottom Navigation
 
 ### 3.1 Problem Identified in Previous Design
+
 - The previous implementation placed each tab item into an **individual isolated rectangular box with its own border and shadow**.
 - This created visual clutter ("four button boxes jammed side by side"), reduced touch target spacing, and caused Myanmar text labels to be cropped and unaligned.
 
 ### 3.2 Redesigned Architecture
+
 - **Unified Bar Surface**: The bottom navigation is a single, continuous bar with `surface` background, a prominent solid 2.5dp top border (`neoBorder`), and a bottom drop shadow.
 - **No Individual Rectangle Boxes**: Tab items sit directly on the bar with generous padding.
 - **Active State Indicator**:
@@ -100,40 +105,10 @@ Spider-Man’s iconic color harmony relies on the balance between **Red** (energ
 
 ---
 
-## 4. Typography System: Expressive Component Font Roles
-
-Neobrutalism thrives on expressive, playful, and distinct visual hierarchy. Each component role has an intentional custom font pairing:
-
-### 4.1 Component Font Allocations
-1. **Header / Big Hero Title (`BlackTofuFontFamily` for Myanmar / `CartoonFontFamily` for English via `headerFontFamily()`)**:
-   - **Role**: Top App Bar title ("ရုပ်ရှင်ဇုန်") and display headings.
-   - **Language Pairing**: Uses `blacktofu_font` strictly for **Myanmar language** (thick, blocky, square, punchy Comic Book Hero feel), while automatically selecting `cartoon_font` when in **English** ("YoteShinZone", "Downloads", "Search") to ensure smooth, natural comic pop typography without glyph mismatch.
-   - **Fix Applied**: Increased `lineHeight = 26.sp` and vertical padding to prevent top/bottom asat and vowel clipping.
-
-2. **Interactive Search Bar (`CartoonFontFamily`)**:
-   - **Role**: Search input query and placeholder ("ဇာတ်လမ်းတွဲများ ရှာဖွေပါ...").
-   - **Characteristics**: Friendly, casual, accessible comic pop feel.
-   - **Fix Applied**: Vertically centered alignment with search icon, dedicated `lineHeight = 20.sp` to eliminate visual clashing with input borders.
-
-3. **Badges & Metadata Tags (`TypewriterFontFamily`)**:
-   - **Role**: Media type labels ("ဇာတ်လမ်းတွဲ", "ရုပ်ရှင်"), release year ("2023"), and rating numbers.
-   - **Characteristics**: Monospaced, technical, retro archival tag feel.
-   - **Fix Applied (Stretching Resolved)**: Increased `fontSize` from 9sp to 10.5sp, set proportional `letterSpacing = 0.sp` (removing artificial mono-stretch on circular Myanmar script), and expanded badge vertical padding from 1dp to 3.dp.
-
-4. **Bottom Navigation Bar (`CartoonFontFamily`)**:
-   - **Role**: Tab labels ("ရုပ်ရှင်များ", "ဇာတ်လမ်းတွဲများ", "မှတ်ထားသော", "ဒေါင်းလုဒ်").
-   - **Characteristics**: Lively comic icons and labels.
-   - **Fix Applied (Cramping Resolved)**: Removed individual tab box containers, providing full column width and unconstrained vertical breathing room (`8.dp` padding + `16.sp` line-height).
-
-5. **Body Paragraphs & Dialogs (`YoeshinFontFamily`)**:
-   - **Role**: Movie overviews, synopsis descriptions, error banners, and subtitles.
-   - **Characteristics**: Crisp, modern, ultra-readable Myanmar Unicode text.
-
----
-
-## 5. Performance & Smooth Scrolling Guidelines
+## 4. Performance & Smooth Scrolling Guidelines
 
 To ensure buttery-smooth 60/120fps scrolling on `LazyVerticalGrid`:
+
 1. **Coil Image Caching**:
    - Implement `ImageLoaderFactory` in `MovieApplication` with configured memory cache (25% memory pool) and disk cache.
    - Use `crossfade(true)` and downsampled poster dimensions.
@@ -146,7 +121,7 @@ To ensure buttery-smooth 60/120fps scrolling on `LazyVerticalGrid`:
 
 ---
 
-## 6. Accessibility (WCAG 2.2 AA Compliance)
+## 5. Accessibility (WCAG 2.2 AA Compliance)
 
 - **Color Contrast**:
   - Light mode: Normal text `#0F172A` on `#FFFFFF` = **15.4:1** (Exceeds 4.5:1 requirement).
