@@ -409,13 +409,14 @@ private fun SearchResultCard(
             modifier = Modifier
                 .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(6.dp))
                 .background(badgeColor, RoundedCornerShape(6.dp))
-                .padding(horizontal = 6.dp, vertical = 3.dp)
+                .padding(horizontal = 6.dp, vertical = 2.5.dp)
         ) {
             Text(
                 text = badgeText,
                 fontFamily = TypewriterFontFamily,
                 fontWeight = FontWeight.Bold,
-                fontSize = 10.sp,
+                fontSize = 10.5.sp,
+                letterSpacing = 0.sp,
                 color = neoColors.textPrimary
             )
         }

@@ -206,14 +206,17 @@ fun TopAppBarNeobrutalist() {
             Text(
                 text = t("app_title"),
                 fontFamily = BlackTofuFontFamily,
-                fontSize = 18.sp,
+                fontSize = 19.sp,
+                lineHeight = 26.sp,
                 fontWeight = FontWeight.Black,
                 color = neoColors.onPrimary
             )
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = t("app_subtitle"),
                 fontFamily = YoeshinFontFamily,
-                fontSize = 11.sp,
+                fontSize = 11.5.sp,
+                lineHeight = 16.sp,
                 fontWeight = FontWeight.Normal,
                 color = neoColors.onPrimary
             )
@@ -285,8 +288,9 @@ fun BottomNavigationNeobrutalist(
             .fillMaxWidth()
             .background(neoColors.surface)
             .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(0.dp))
-            .padding(horizontal = 6.dp, vertical = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         val items = listOf(
             Triple(Screen.Movies, t("nav_movies"), NeubrutalismIcons.Movie),
@@ -297,53 +301,48 @@ fun BottomNavigationNeobrutalist(
 
         items.forEach { (screen, label, icon) ->
             val isSelected = currentRoute == screen.route
-            val bg = if (isSelected) neoColors.primary else neoColors.surfaceMuted
-            val shadowOffset = if (isSelected) 3.dp else 0.dp
+            val activeColor = neoColors.primary
+            val inactiveColor = neoColors.textSecondary
 
-            Box(
+            Column(
                 modifier = Modifier
                     .weight(1f)
                     .defaultMinSize(minHeight = 52.dp)
-                    .then(
-                        if (isSelected) {
-                            Modifier
-                                .neoShadow(offsetX = shadowOffset, offsetY = shadowOffset, color = neoColors.shadow, shape = RoundedCornerShape(10.dp))
-                                .background(bg, RoundedCornerShape(10.dp))
-                                .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(10.dp))
-                        } else {
-                            Modifier
-                                .background(bg, RoundedCornerShape(10.dp))
-                                .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(10.dp))
-                        }
-                    )
                     .clickable { onNavigate(screen) }
                     .semantics {
                         role = Role.Tab
                         selected = isSelected
                     }
-                    .padding(vertical = 6.dp),
-                contentAlignment = Alignment.Center
+                    .padding(vertical = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    val contentColor = if (isSelected) neoColors.onPrimary else neoColors.textPrimary
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = contentColor,
-                        modifier = Modifier.size(20.dp)
+                val contentColor = if (isSelected) activeColor else inactiveColor
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = contentColor,
+                    modifier = Modifier.size(22.dp)
+                )
+                Spacer(modifier = Modifier.height(3.dp))
+                Text(
+                    text = label,
+                    fontFamily = CartoonFontFamily,
+                    fontSize = 11.sp,
+                    lineHeight = 15.sp,
+                    fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
+                    color = contentColor,
+                    maxLines = 1
+                )
+                if (isSelected) {
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(width = 16.dp, height = 3.dp)
+                            .background(activeColor, RoundedCornerShape(2.dp))
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = label,
-                        fontFamily = CartoonFontFamily,
-                        fontSize = 11.sp,
-                        fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
-                        color = contentColor,
-                        maxLines = 1
-                    )
+                } else {
+                    Spacer(modifier = Modifier.height(6.dp))
                 }
             }
         }

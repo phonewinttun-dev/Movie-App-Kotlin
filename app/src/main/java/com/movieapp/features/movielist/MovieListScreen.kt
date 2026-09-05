@@ -64,6 +64,8 @@ import com.movieapp.theme.neoColors
 import com.movieapp.theme.neoShadow
 import com.movieapp.util.t
 
+import kotlinx.coroutines.flow.distinctUntilChanged
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieListScreen(
@@ -89,13 +91,15 @@ fun MovieListScreen(
         }
     }
 
-    // Continuous Infinite Scrolling detection (US-03)
+    // Continuous Infinite Scrolling detection with distinctUntilChanged (US-03)
     LaunchedEffect(gridState, uiState.activeCategory) {
         snapshotFlow {
             val totalItems = gridState.layoutInfo.totalItemsCount
             val lastVisibleIndex = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
             totalItems > 0 && lastVisibleIndex >= totalItems - 4
-        }.collect { shouldPaginate ->
+        }
+        .distinctUntilChanged()
+        .collect { shouldPaginate ->
             if (shouldPaginate && !uiState.isPaginating && uiState.currentHasMore) {
                 viewModel.loadNextPage()
             }
@@ -189,7 +193,7 @@ fun MovieListScreen(
                 ) {
                     items(
                         items = uiState.currentDisplayList,
-                        key = { item -> "${item.id}_${item.slug}_${item.displayTitle}" }
+                        key = { item -> if (item.id != 0L) item.id else item.slug ?: item.displayTitle }
                     ) { item ->
                         MovieGridCard(
                             item = item,
@@ -201,7 +205,7 @@ fun MovieListScreen(
                         )
                     }
 
-                    // Inline Pagination Progress Indicator
+                    // Inline Pagination Progress Indicator (Spidey Blue)
                     if (uiState.isPaginating) {
                         item {
                             Box(
@@ -210,7 +214,7 @@ fun MovieListScreen(
                                     .padding(16.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                CircularProgressIndicator(color = neoColors.primary, strokeWidth = 3.dp)
+                                CircularProgressIndicator(color = neoColors.secondary, strokeWidth = 3.dp)
                             }
                         }
                     }
@@ -297,11 +301,12 @@ fun InPageSearchBar(
                 textStyle = TextStyle(
                     fontFamily = CartoonFontFamily,
                     fontSize = 14.sp,
+                    lineHeight = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = neoColors.textPrimary
                 ),
                 singleLine = true,
-                cursorBrush = SolidColor(neoColors.textPrimary),
+                cursorBrush = SolidColor(neoColors.secondary),
                 decorationBox = { innerTextField ->
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
                         if (query.isEmpty()) {
@@ -309,6 +314,7 @@ fun InPageSearchBar(
                                 text = placeholder,
                                 fontFamily = CartoonFontFamily,
                                 fontSize = 14.sp,
+                                lineHeight = 20.sp,
                                 color = neoColors.textSecondary
                             )
                         }
@@ -354,6 +360,13 @@ private fun MovieGridCard(
     onClick: () -> Unit
 ) {
     val neoColors = MaterialTheme.neoColors
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val imageRequest = remember(item.poster) {
+        coil.request.ImageRequest.Builder(context)
+            .data(item.poster)
+            .crossfade(true)
+            .build()
+    }
     val a11yLabel = "${item.displayTitle}, released in ${item.displayYear}, rating ${item.formattedRating} out of 10"
 
     Column(
@@ -377,7 +390,7 @@ private fun MovieGridCard(
                 .background(neoColors.surfaceMuted)
         ) {
             AsyncImage(
-                model = item.poster,
+                model = imageRequest,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -406,7 +419,8 @@ private fun MovieGridCard(
                         text = item.formattedRating,
                         fontFamily = TypewriterFontFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp,
+                        fontSize = 11.sp,
+                        letterSpacing = 0.sp,
                         color = NeoBlack
                     )
                 }
@@ -448,13 +462,14 @@ private fun MovieGridCard(
                     modifier = Modifier
                         .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(4.dp))
                         .background(typeBg, RoundedCornerShape(4.dp))
-                        .padding(horizontal = 4.dp, vertical = 1.dp)
+                        .padding(horizontal = 6.dp, vertical = 2.5.dp)
                 ) {
                     Text(
                         text = typeLabel,
                         fontFamily = TypewriterFontFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 9.sp,
+                        fontSize = 10.5.sp,
+                        letterSpacing = 0.sp,
                         color = neoColors.onPrimary
                     )
                 }

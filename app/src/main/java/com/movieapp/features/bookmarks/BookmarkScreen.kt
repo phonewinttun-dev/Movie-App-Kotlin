@@ -201,6 +201,13 @@ private fun BookmarkMovieCard(
     val badgeLabel = if (item.isTvShow) t("badge_tv_show") else t("badge_movie")
     val a11yLabel = "${item.title}, ${item.releaseYear ?: ""}, $badgeLabel"
     val removeBookmarkLabel = "${t("remove_bookmark")}: ${item.title}"
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val imageRequest = remember(item.poster) {
+        coil.request.ImageRequest.Builder(context)
+            .data(item.poster)
+            .crossfade(true)
+            .build()
+    }
 
     Column(
         modifier = Modifier
@@ -222,7 +229,7 @@ private fun BookmarkMovieCard(
                 .background(neoColors.surfaceMuted)
         ) {
             AsyncImage(
-                model = item.poster,
+                model = imageRequest,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -275,7 +282,8 @@ private fun BookmarkMovieCard(
                         text = rating,
                         fontFamily = TypewriterFontFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp,
+                        fontSize = 11.sp,
+                        letterSpacing = 0.sp,
                         color = NeoBlack
                     )
                 }
@@ -315,13 +323,14 @@ private fun BookmarkMovieCard(
                     modifier = Modifier
                         .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(4.dp))
                         .background(typeBg, RoundedCornerShape(4.dp))
-                        .padding(horizontal = 4.dp, vertical = 1.dp)
+                        .padding(horizontal = 6.dp, vertical = 2.5.dp)
                 ) {
                     Text(
                         text = typeLabel,
                         fontFamily = TypewriterFontFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 9.sp,
+                        fontSize = 10.5.sp,
+                        letterSpacing = 0.sp,
                         color = neoColors.onPrimary
                     )
                 }

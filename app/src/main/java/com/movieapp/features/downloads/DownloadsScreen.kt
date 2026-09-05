@@ -388,7 +388,8 @@ fun CompletedDownloadCard(
                         Text(
                             text = download.formattedTotalSize,
                             fontFamily = TypewriterFontFamily,
-                            fontSize = 10.sp,
+                            fontSize = 10.5.sp,
+                            letterSpacing = 0.sp,
                             fontWeight = FontWeight.Bold,
                             color = neoColors.textPrimary
                         )
