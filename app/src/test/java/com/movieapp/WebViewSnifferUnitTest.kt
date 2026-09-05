@@ -139,6 +139,73 @@ class WebViewSnifferUnitTest {
         assertEquals("Empty URL", result.exceptionOrNull()?.message)
     }
 
+    @Test
+    @Trait(category = "positive", secondary = "critical-path")
+    fun testYoteshinDetection_andDeepLinkConversion() {
+        val yoteshinDto = DownloadLinkDTO(
+            id = 50L,
+            serverName = "Yoteshin",
+            url = "https://yoteshinportal.cc/uno-2025-720-p-amzn-web-dl-hmtv-nc-mp-4"
+        )
+        assertTrue("DownloadLinkDTO must identify Yoteshin", yoteshinDto.isYoteshin)
+
+        val directDeepLink = DownloadManagerHelper.convertToYoteshinDeepLink("https://yoteshinportal.cc/drive?p=LNtc_Ndg_")
+        assertEquals("yoteshin://yoteshinportal.cc/drive?p=LNtc_Ndg_", directDeepLink)
+
+        val alreadyDeepLink = DownloadManagerHelper.convertToYoteshinDeepLink("yoteshin://yoteshinportal.cc/drive?p=sample123")
+        assertEquals("yoteshin://yoteshinportal.cc/drive?p=sample123", alreadyDeepLink)
+    }
+
+    @Test
+    @Trait(category = "positive", secondary = "boundary")
+    fun testMegaUpCopyUrl_preservesWebPortalUrlForExternalDownloader() = runBlocking {
+        val megaUpUrl = "https://megaup.net/b4693f8cd7799d1de751a7c9bfa47dc6/Uno.2025.1080p.mkv"
+        val dto = DownloadLinkDTO(
+            id = 51L,
+            serverName = "Megaup",
+            url = megaUpUrl
+        )
+        val copyResult = DirectDownloadResolver.resolveDirectUrlForCopy(dto)
+        assertTrue(copyResult.isSuccess)
+        assertEquals(megaUpUrl, copyResult.getOrNull())
+    }
+
+    @Test
+    @Trait(category = "positive", secondary = "resilience")
+    fun testCorruptHtmlDownload_detectedAndRejected() {
+        val tempHtmlFile = java.io.File.createTempFile("cloudflare_challenge", ".mp4")
+        try {
+            tempHtmlFile.writeText("<!DOCTYPE html><html lang=\"en-US\"><head><title>Just a moment...</title></head><body>cf-chl</body></html>")
+            assertTrue("HTML challenge file must be detected as corrupt", DownloadManagerHelper.isCorruptHtmlDownload(tempHtmlFile))
+
+            val tempBinaryFile = java.io.File.createTempFile("valid_stream", ".mp4")
+            try {
+                tempBinaryFile.writeBytes(ByteArray(1024) { 0x00 })
+                assertFalse("Binary video file must NOT be detected as corrupt HTML", DownloadManagerHelper.isCorruptHtmlDownload(tempBinaryFile))
+            } finally {
+                tempBinaryFile.delete()
+            }
+        } finally {
+            tempHtmlFile.delete()
+        }
+    }
+
+    @Test
+    @Trait(category = "positive", secondary = "integration")
+    fun testRefererHeaderPassedInDownloadManager() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val directUrl = "https://cdn.example.com/movies/sample_video.mp4"
+        val referer = "https://megaup.net/sample123"
+
+        val downloadId = DownloadManagerHelper.startNativeDownload(
+            context = context,
+            title = "Test Movie with Referer",
+            directUrl = directUrl,
+            referer = referer
+        )
+        assertTrue("DownloadManager must enqueue with referer (id >= 0)", downloadId >= 0)
+    }
+
     private fun assertNotNull(obj: Any?) {
         assertTrue(obj != null)
     }

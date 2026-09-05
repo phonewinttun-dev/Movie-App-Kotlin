@@ -248,6 +248,24 @@ fun DownloadLinksBottomSheet(
                                 if (link.isTelegram) {
                                     // tg:// protocol instant launch
                                     DownloadManagerHelper.openTelegram(context, link.url ?: "")
+                                } else if (link.isYoteshin) {
+                                    // Yoteshin portal / Yoteshin Drive deep link
+                                    val rawUrl = link.url?.trim() ?: ""
+                                    val isInstalled = DownloadManagerHelper.isYoteshinDriveInstalled(context)
+                                    if (isInstalled) {
+                                        coroutineScope.launch {
+                                            val deepLink = DownloadManagerHelper.convertToYoteshinDeepLink(rawUrl)
+                                                ?: DirectDownloadResolver.extractYoteshinDeepLink(rawUrl)
+                                                ?: rawUrl
+                                            val launched = DownloadManagerHelper.openYoteshinDrive(context, deepLink)
+                                            if (!launched) {
+                                                fallbackLink = link
+                                            }
+                                        }
+                                    } else {
+                                        // App not installed: show dedicated dialog immediately without 18s wait!
+                                        fallbackLink = link
+                                    }
                                 } else if (link.url?.contains("megaup.net", ignoreCase = true) == true) {
                                     // MegaUp requires interactive Cloudflare Turnstile human verification
                                     interactiveLink = link
@@ -267,7 +285,8 @@ fun DownloadLinksBottomSheet(
                                                 title = title,
                                                 directUrl = sniffResult.directUrl,
                                                 cookies = sniffResult.cookies,
-                                                userAgent = sniffResult.userAgent
+                                                userAgent = sniffResult.userAgent,
+                                                referer = sniffResult.referer ?: link.url
                                             )
                                         }.onFailure {
                                             // Fallback dialog giving user the 2 explicit choices
@@ -279,15 +298,9 @@ fun DownloadLinksBottomSheet(
                             onCopyLink = {
                                 coroutineScope.launch {
                                     val rawUrl = link.url?.trim() ?: return@launch
-                                    if (rawUrl.contains("megaup.net", ignoreCase = true)) {
-                                        Toast.makeText(context, LocalizationManager.getString("resolving_direct_link"), Toast.LENGTH_SHORT).show()
-                                        val resolved = DirectDownloadResolver.resolveDirectUrlForCopy(link)
-                                        val copyTarget = resolved.getOrDefault(rawUrl)
-                                        DownloadManagerHelper.copyLinkToClipboard(context, link.cleanServerName, copyTarget)
-                                        Toast.makeText(context, LocalizationManager.getString("direct_link_copied"), Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        DownloadManagerHelper.copyLinkToClipboard(context, link.cleanServerName, rawUrl)
-                                    }
+                                    val resolved = DirectDownloadResolver.resolveDirectUrlForCopy(link)
+                                    val copyTarget = resolved.getOrDefault(rawUrl)
+                                    DownloadManagerHelper.copyLinkToClipboard(context, link.cleanServerName, copyTarget)
                                 }
                             },
                             onOpenInDownloader = if (!link.isTelegram) {
@@ -319,7 +332,8 @@ fun DownloadLinksBottomSheet(
                     title = title,
                     directUrl = sniffResult.directUrl,
                     cookies = sniffResult.cookies,
-                    userAgent = sniffResult.userAgent
+                    userAgent = sniffResult.userAgent,
+                    referer = sniffResult.referer ?: targetLink.url
                 )
             },
             onDismissWithFallback = {
@@ -345,6 +359,23 @@ fun DownloadLinksBottomSheet(
                 DownloadManagerHelper.copyLinkToClipboard(context, lk.cleanServerName, rawUrl)
                 DownloadManagerHelper.openInExternalDownloader(context, rawUrl)
             },
+            onOpenYoteshin = if (targetLink.isYoteshin) {
+                {
+                    val lk = targetLink
+                    fallbackLink = null
+                    val rawUrl = lk.url ?: ""
+                    coroutineScope.launch {
+                        val deepLink = DownloadManagerHelper.convertToYoteshinDeepLink(rawUrl)
+                            ?: DirectDownloadResolver.extractYoteshinDeepLink(rawUrl)
+                            ?: rawUrl
+
+                        val launched = DownloadManagerHelper.openYoteshinDrive(context, deepLink)
+                        if (!launched) {
+                            DownloadManagerHelper.openYoteshinPlayStore(context)
+                        }
+                    }
+                }
+            } else null,
             onDismiss = {
                 fallbackLink = null
             }
@@ -388,7 +419,8 @@ fun DownloadLinkCard(
                     modifier = Modifier.weight(1f, fill = false)
                 ) {
                     // Server Badge
-                    val serverBg = if (link.isTelegram) neoColors.tertiary else neoColors.primary.copy(alpha = 0.2f)
+                    val serverBg = if (link.isTelegram) neoColors.tertiary else if (link.isYoteshin) neoColors.secondary else neoColors.primary.copy(alpha = 0.2f)
+                    val serverTextColor = if (link.isYoteshin) neoColors.onSecondary else neoColors.textPrimary
                     Box(
                         modifier = Modifier
                             .neoBorder(width = 1.dp, color = neoColors.border, shape = RoundedCornerShape(6.dp))
@@ -400,7 +432,7 @@ fun DownloadLinkCard(
                             fontFamily = CartoonFontFamily,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = neoColors.textPrimary,
+                            color = serverTextColor,
                             maxLines = 1,
                             softWrap = false
                         )
@@ -522,9 +554,9 @@ fun DownloadLinkCard(
                     )
                 }
 
-                // Main CTA Button (Direct Download or Telegram) or Resolving + Cancel State
-                val btnBg = if (link.isTelegram) neoColors.tertiary else neoColors.primary
-                val btnContent = if (link.isTelegram) NeoBlack else neoColors.onPrimary
+                // Main CTA Button (Direct Download, Telegram, or Yoteshin) or Resolving + Cancel State
+                val btnBg = if (link.isTelegram) neoColors.tertiary else if (link.isYoteshin) neoColors.secondary else neoColors.primary
+                val btnContent = if (link.isTelegram) NeoBlack else if (link.isYoteshin) neoColors.onSecondary else neoColors.onPrimary
 
                 if (isResolving) {
                     // Resolving progress container + prominent CANCEL button
@@ -620,7 +652,7 @@ fun DownloadLinkCard(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = if (link.isTelegram) t("telegram_action") else t("direct_download"),
+                                text = if (link.isTelegram) t("telegram_action") else if (link.isYoteshin) t("yoteshin_action") else t("direct_download"),
                                 fontFamily = com.movieapp.theme.buttonFontFamily(),
                                 fontSize = 12.5.sp,
                                 fontWeight = FontWeight.Bold,

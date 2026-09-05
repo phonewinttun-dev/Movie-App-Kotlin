@@ -23,7 +23,8 @@ data class SniffResult(
     val userAgent: String? = null,
     val mimeType: String? = null,
     val contentDisposition: String? = null,
-    val contentLength: Long = 0L
+    val contentLength: Long = 0L,
+    val referer: String? = null
 )
 
 /**

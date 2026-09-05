@@ -277,14 +277,18 @@ fun InteractiveDownloadSheet(
                             // 1. Intercept direct file download trigger from server
                             setDownloadListener(DownloadListener { downloadUrl, userAgent, contentDisposition, mimetype, contentLength ->
                                 if (isResolved.compareAndSet(false, true)) {
-                                    val cookies = try { cookieManager.getCookie(downloadUrl) } catch (_: Exception) { null }
+                                    val pageCookies = try { link.url?.let { cookieManager.getCookie(it) } } catch (_: Exception) { null }
+                                    val dlCookies = try { cookieManager.getCookie(downloadUrl) } catch (_: Exception) { null }
+                                    val mergedCookies = listOfNotNull(pageCookies, dlCookies).flatMap { it.split("; ") }.distinct().joinToString("; ").takeIf { it.isNotBlank() }
+
                                     val result = SniffResult(
                                         directUrl = downloadUrl,
-                                        cookies = cookies,
+                                        cookies = mergedCookies,
                                         userAgent = userAgent.takeIf { !it.isNullOrBlank() } ?: WebViewDownloadSniffer.CHROME_USER_AGENT,
                                         mimeType = mimetype,
                                         contentDisposition = contentDisposition,
-                                        contentLength = contentLength
+                                        contentLength = contentLength,
+                                        referer = link.url
                                     )
                                     Handler(Looper.getMainLooper()).post {
                                         onStreamResolved(result)
@@ -305,11 +309,15 @@ fun InteractiveDownloadSheet(
                                     val reqUrl = request?.url?.toString() ?: return false
                                     if (WebViewDownloadSniffer.isMediaStream(reqUrl, null)) {
                                         if (isResolved.compareAndSet(false, true)) {
-                                            val cookies = try { cookieManager.getCookie(reqUrl) } catch (_: Exception) { null }
+                                            val pageCookies = try { link.url?.let { cookieManager.getCookie(it) } } catch (_: Exception) { null }
+                                            val dlCookies = try { cookieManager.getCookie(reqUrl) } catch (_: Exception) { null }
+                                            val mergedCookies = listOfNotNull(pageCookies, dlCookies).flatMap { it.split("; ") }.distinct().joinToString("; ").takeIf { it.isNotBlank() }
+
                                             val result = SniffResult(
                                                 directUrl = reqUrl,
-                                                cookies = cookies,
-                                                userAgent = WebViewDownloadSniffer.CHROME_USER_AGENT
+                                                cookies = mergedCookies,
+                                                userAgent = WebViewDownloadSniffer.CHROME_USER_AGENT,
+                                                referer = link.url
                                             )
                                             Handler(Looper.getMainLooper()).post {
                                                 onStreamResolved(result)
@@ -324,11 +332,15 @@ fun InteractiveDownloadSheet(
                                     val reqUrl = request?.url?.toString() ?: return null
                                     if (WebViewDownloadSniffer.isMediaStream(reqUrl, null)) {
                                         if (isResolved.compareAndSet(false, true)) {
-                                            val cookies = try { cookieManager.getCookie(reqUrl) } catch (_: Exception) { null }
+                                            val pageCookies = try { link.url?.let { cookieManager.getCookie(it) } } catch (_: Exception) { null }
+                                            val dlCookies = try { cookieManager.getCookie(reqUrl) } catch (_: Exception) { null }
+                                            val mergedCookies = listOfNotNull(pageCookies, dlCookies).flatMap { it.split("; ") }.distinct().joinToString("; ").takeIf { it.isNotBlank() }
+
                                             val result = SniffResult(
                                                 directUrl = reqUrl,
-                                                cookies = cookies,
-                                                userAgent = WebViewDownloadSniffer.CHROME_USER_AGENT
+                                                cookies = mergedCookies,
+                                                userAgent = WebViewDownloadSniffer.CHROME_USER_AGENT,
+                                                referer = link.url
                                             )
                                             Handler(Looper.getMainLooper()).post {
                                                 onStreamResolved(result)

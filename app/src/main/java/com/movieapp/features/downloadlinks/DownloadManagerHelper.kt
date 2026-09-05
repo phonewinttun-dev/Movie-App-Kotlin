@@ -85,9 +85,84 @@ object DownloadManagerHelper {
         ).show()
     }
 
+    const val YOTESHIN_PACKAGE = "cc.yoteshinportal.yoteshin_drive"
+    const val YOTESHIN_PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=cc.yoteshinportal.yoteshin_drive"
+
+    /**
+     * Checks if the official Yoteshin Drive application is installed.
+     */
+    fun isYoteshinDriveInstalled(context: Context): Boolean {
+        return try {
+            context.packageManager.getPackageInfo(YOTESHIN_PACKAGE, 0)
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Converts a Yoteshin portal URL or direct drive link into a proprietary yoteshin:// URI.
+     */
+    fun convertToYoteshinDeepLink(url: String): String? {
+        val trimmed = url.trim()
+        if (trimmed.startsWith("yoteshin://", ignoreCase = true)) return trimmed
+        val pParam = Regex("""[?&]p=([^&#\s]+)""").find(trimmed)?.groupValues?.getOrNull(1)
+        if (pParam != null) {
+            return "yoteshin://yoteshinportal.cc/drive?p=$pParam"
+        }
+        return null
+    }
+
+    /**
+     * Opens the Yoteshin Drive app with the given deep link or portal URL.
+     * Returns true if successfully launched, false if not installed.
+     */
+    fun openYoteshinDrive(context: Context, deepLinkOrUrl: String): Boolean {
+        val deepLink = convertToYoteshinDeepLink(deepLinkOrUrl) ?: run {
+            if (deepLinkOrUrl.startsWith("yoteshin://", ignoreCase = true)) deepLinkOrUrl else null
+        }
+
+        if (deepLink != null) {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink)).apply {
+                    setPackage(YOTESHIN_PACKAGE)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(intent)
+                return true
+            } catch (_: Exception) {
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink)).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    context.startActivity(intent)
+                    return true
+                } catch (_: Exception) {}
+            }
+        }
+        return false
+    }
+
+    /**
+     * Launches Google Play Store to install Yoteshin Drive.
+     */
+    fun openYoteshinPlayStore(context: Context) {
+        try {
+            val marketIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$YOTESHIN_PACKAGE")).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(marketIntent)
+        } catch (_: Exception) {
+            val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse(YOTESHIN_PLAY_STORE_URL)).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(webIntent)
+        }
+    }
+
     /**
      * Enqueues a verified direct file URL to Android's native DownloadManager and persists to Room.
-     * Optionally attaches authenticated cookies and user-agent headers to bypass CDN hotlink protections.
+     * Optionally attaches authenticated cookies, user-agent, and referer headers to bypass CDN hotlink protections.
      */
     fun startNativeDownload(
         context: Context,
@@ -96,7 +171,8 @@ object DownloadManagerHelper {
         movieSlug: String = "",
         poster: String? = null,
         cookies: String? = null,
-        userAgent: String? = null
+        userAgent: String? = null,
+        referer: String? = null
     ): Long {
         if (DirectDownloadResolver.isKnownWebPortal(directUrl)) {
             Toast.makeText(context, "Cannot download portal page directly", Toast.LENGTH_SHORT).show()
@@ -124,6 +200,7 @@ object DownloadManagerHelper {
                 setAllowedOverRoaming(true)
                 cookies?.takeIf { it.isNotBlank() }?.let { addRequestHeader("Cookie", it) }
                 userAgent?.takeIf { it.isNotBlank() }?.let { addRequestHeader("User-Agent", it) }
+                referer?.takeIf { it.isNotBlank() }?.let { addRequestHeader("Referer", it) }
             }
 
             val downloadId = downloadManager.enqueue(request)
@@ -285,6 +362,33 @@ object DownloadManagerHelper {
         } catch (e: Exception) {
             copyLinkToClipboard(context, downloadLink.cleanServerName, rawUrl)
             Toast.makeText(context, "No app available to open URL. Copied to clipboard.", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    /**
+     * Inspects a local file to determine if it is a corrupt HTML error page (e.g. Cloudflare 403 or anti-hotlink block)
+     * mistakenly downloaded instead of an authentic binary video file.
+     */
+    fun isCorruptHtmlDownload(file: java.io.File): Boolean {
+        if (!file.exists() || file.length() == 0L) return false
+        // Authentic movie streams are large; corrupt error pages are small (< 250 KB)
+        if (file.length() > 250 * 1024L) return false
+
+        return try {
+            file.inputStream().use { input ->
+                val buffer = ByteArray(minOf(file.length().toInt(), 2048))
+                val bytesRead = input.read(buffer)
+                if (bytesRead <= 0) return false
+                val content = String(buffer, 0, bytesRead, Charsets.UTF_8).lowercase().trim()
+                content.contains("<!doctype html") ||
+                        content.contains("<html") ||
+                        content.contains("just a moment...") ||
+                        content.contains("cf-chl") ||
+                        content.contains("turnstile") ||
+                        content.contains("<head")
+            }
+        } catch (_: Exception) {
+            false
         }
     }
 }

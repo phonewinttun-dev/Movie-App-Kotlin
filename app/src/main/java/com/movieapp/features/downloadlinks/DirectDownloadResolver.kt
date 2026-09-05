@@ -37,6 +37,11 @@ object DirectDownloadResolver {
                 return@withContext Result.success(SniffResult(directUrl = rawUrl))
             }
 
+            // Web portals requiring dedicated apps or logins (e.g. Yoteshin, Drive) should not wait 18s in sniffer
+            if (downloadLink.isYoteshin || isKnownWebPortal(rawUrl)) {
+                return@withContext Result.failure(Exception("Portal requires dedicated app or browser authentication"))
+            }
+
             // In-app WebView stream sniffer (handles MegaUp timer, JS tokens, Cloudflare)
             val sniffResult = WebViewDownloadSniffer.sniff(context, rawUrl)
             if (sniffResult.isSuccess) {
@@ -96,24 +101,35 @@ object DirectDownloadResolver {
 
     /**
      * Resolves a download link specifically for copying to clipboard.
-     * Bypasses countdown timers (e.g. MegaUp) so users can paste the direct link into external downloaders (1DM, ADM).
+     * Preserves web page URLs for protected hosts (MegaUp, Yoteshin) so external downloaders (1DM, ADM)
+     * can negotiate session authentication in their built-in browser instead of failing with 403 HTML pages.
      */
     suspend fun resolveDirectUrlForCopy(downloadLink: DownloadLinkDTO): Result<String> = withContext(Dispatchers.IO) {
         val rawUrl = downloadLink.url?.trim() ?: return@withContext Result.failure(Exception("Empty URL"))
+        Result.success(rawUrl)
+    }
 
-        try {
-            if (rawUrl.contains("megaup.net", ignoreCase = true)) {
-                val extracted = extractMegaUpDirectLink(rawUrl)
-                if (extracted.isSuccess) {
-                    extracted
-                } else {
-                    Result.success(rawUrl)
-                }
-            } else {
-                Result.success(rawUrl)
+    /**
+     * Extracts proprietary yoteshin:// deep link from a yoteshinportal.cc landing page.
+     */
+    fun extractYoteshinDeepLink(pageUrl: String): String? {
+        val request = Request.Builder()
+            .url(pageUrl)
+            .header("User-Agent", Constants.USER_AGENT)
+            .build()
+
+        return try {
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return null
+                val html = response.body?.string() ?: return null
+                val pattern = Pattern.compile("(yoteshin://yoteshinportal\\.cc/drive\\?p=[^'\"\\s<>]+)")
+                val matcher = pattern.matcher(html)
+                if (matcher.find()) {
+                    matcher.group(1)
+                } else null
             }
-        } catch (e: Exception) {
-            Result.success(rawUrl)
+        } catch (_: Exception) {
+            null
         }
     }
 

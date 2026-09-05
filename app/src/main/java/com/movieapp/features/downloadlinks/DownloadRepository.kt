@@ -63,8 +63,27 @@ class DownloadRepository(
                     val total = if (totalBytesIndex != -1) cursor.getLong(totalBytesIndex) else entity.totalBytes
                     val status = if (statusIndex != -1) cursor.getInt(statusIndex) else entity.status
                     val localUri = if (localUriIndex != -1) cursor.getString(localUriIndex) else entity.fileUri
+                    var finalStatus = status
+                    if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                        val file = localUri?.let { uriStr ->
+                            try {
+                                val parsed = android.net.Uri.parse(uriStr)
+                                if (parsed.scheme == "file") java.io.File(parsed.path ?: "")
+                                else null
+                            } catch (_: Exception) { null }
+                        } ?: java.io.File(
+                            android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS),
+                            entity.fileName
+                        )
 
-                    val completedAt = if (status == DownloadManager.STATUS_SUCCESSFUL && entity.completedAt == null) {
+                        if (DownloadManagerHelper.isCorruptHtmlDownload(file)) {
+                            // File downloaded is an HTML error/challenge page instead of real video; delete it and fail
+                            try { file.delete() } catch (_: Exception) {}
+                            finalStatus = DownloadManager.STATUS_FAILED
+                        }
+                    }
+
+                    val completedAt = if (finalStatus == DownloadManager.STATUS_SUCCESSFUL && entity.completedAt == null) {
                         System.currentTimeMillis()
                     } else {
                         entity.completedAt
@@ -74,7 +93,7 @@ class DownloadRepository(
                         id = entity.downloadId,
                         downloadedBytes = downloaded,
                         totalBytes = total,
-                        status = status,
+                        status = finalStatus,
                         completedAt = completedAt,
                         fileUri = localUri
                     )

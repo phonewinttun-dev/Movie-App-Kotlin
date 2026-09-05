@@ -48,6 +48,7 @@ fun DownloadFallbackDialog(
     link: DownloadLinkDTO,
     onOpenInBrowser: () -> Unit,
     onCopyLink: () -> Unit,
+    onOpenYoteshin: (() -> Unit)? = null,
     onDismiss: () -> Unit
 ) {
     val neoColors = MaterialTheme.neoColors
@@ -69,7 +70,7 @@ fun DownloadFallbackDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Download Options",
+                        text = if (link.isYoteshin) "Yoteshin Download Options" else "Download Options",
                         fontFamily = CartoonFontFamily,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
@@ -96,7 +97,11 @@ fun DownloadFallbackDialog(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = "In-app stream could not be completed directly. Choose how you would like to download:",
+                    text = if (link.isYoteshin) {
+                        "Yoteshin Portal requires the Yoteshin Drive app or Google Drive login. Choose an option below:"
+                    } else {
+                        "In-app stream could not be completed directly. Choose how you would like to download:"
+                    },
                     fontFamily = YoeshinFontFamily,
                     fontSize = 13.sp,
                     color = neoColors.textSecondary,
@@ -143,7 +148,43 @@ fun DownloadFallbackDialog(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                // Choice 1: Open in Browser
+                // Primary Choice for Yoteshin: Open in Yoteshin Drive App
+                if (link.isYoteshin && onOpenYoteshin != null) {
+                    Button(
+                        onClick = onOpenYoteshin,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = neoColors.tertiary,
+                            contentColor = neoColors.textPrimary
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .neoShadow(offsetX = 2.dp, offsetY = 2.dp, color = neoColors.shadow, shape = RoundedCornerShape(10.dp))
+                            .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(10.dp))
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = NeubrutalismIcons.Download,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Open with Yoteshin Drive",
+                                fontFamily = CartoonFontFamily,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+
+                // Choice: Open in Browser
                 Button(
                     onClick = onOpenInBrowser,
                     shape = RoundedCornerShape(10.dp),
