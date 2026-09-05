@@ -16,20 +16,20 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
   <p align="center">
-    <a href="#-key-features">Key Features</a> •
-    <a href="#-spider-man-neobrutalism-design-system">Design System</a> •
-    <a href="#-architecture--engineering">Architecture</a> •
-    <a href="#-project-structure">Project Structure</a> •
-    <a href="#-tech-stack">Tech Stack</a> •
-    <a href="#-getting-started">Getting Started</a> •
-    <a href="#-building--abi-splits">Build & Releases</a>
+    <a href="#key-features">Key Features</a> •
+    <a href="#spider-man-neobrutalism-design-system">Design System</a> •
+    <a href="#architecture--engineering">Architecture</a> •
+    <a href="#project-structure">Project Structure</a> •
+    <a href="#tech-stack">Tech Stack</a> •
+    <a href="#getting-started">Getting Started</a> •
+    <a href="#building--abi-splits">Build & Releases</a>
   </p>
 
 </div>
 
 ---
 
-## 🌟 Overview
+## Overview
 
 **YoteShinZone (ရုပ်ရှင်ဇုန်)** is a student hobby project developed as a final coursework submission for our university's **CS-706: Emerging Technology (Mobile Platforms)**.
 
@@ -94,7 +94,7 @@ YoteShinZone breaks away from generic flat interfaces through its custom **Spide
 
 ---
 
-## 🏛️ Architecture & Engineering
+## Architecture & Engineering
 
 The application follows **Clean Architecture** principles and the official Android **Model-View-ViewModel (MVVM)** pattern with **Unidirectional Data Flow (UDF)**:
 
@@ -181,7 +181,7 @@ MovieApp/
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Category              | Technology / Library                                                                                              | Version          | Description                                         |
 | :-------------------- | :---------------------------------------------------------------------------------------------------------------- | :--------------- | :-------------------------------------------------- |
@@ -256,7 +256,7 @@ Run the Robolectric JVM and Compose UI test suite locally without needing an act
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are what make the open-source community an incredible place to learn, inspire, and create! Any contributions you make are **greatly appreciated**.
 
@@ -270,7 +270,7 @@ Contributions are what make the open-source community an incredible place to lea
 
 <div align="center">
 
-**Crafted with ❤️ by ArtificalPunks**
-If you enjoyed this project, don't forget to give it a ⭐ on GitHub!
+**Crafted by ArtificalPunks**  
+If you enjoyed this project, don't forget to give it a star on GitHub!
 
 </div>

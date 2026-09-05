@@ -49,7 +49,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.movieapp.features.downloadlinks.DownloadLinkDTO
 import com.movieapp.features.downloadlinks.DownloadLinksBottomSheet
-import com.movieapp.theme.BlackTofuFontFamily
 import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.NeoBlack
 import com.movieapp.theme.NeoButton

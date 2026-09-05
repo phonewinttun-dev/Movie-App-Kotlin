@@ -105,9 +105,9 @@ Spider-Man’s iconic color harmony relies on the balance between **Red** (energ
 Neobrutalism thrives on expressive, playful, and distinct visual hierarchy. Each component role has an intentional custom font pairing:
 
 ### 4.1 Component Font Allocations
-1. **Header / Big Hero Title (`BlackTofuFontFamily`)**:
+1. **Header / Big Hero Title (`BlackTofuFontFamily` for Myanmar / `CartoonFontFamily` for English via `headerFontFamily()`)**:
    - **Role**: Top App Bar title ("ရုပ်ရှင်ဇုန်") and display headings.
-   - **Characteristics**: Thick, blocky, square, punchy Comic Book Hero feel.
+   - **Language Pairing**: Uses `blacktofu_font` strictly for **Myanmar language** (thick, blocky, square, punchy Comic Book Hero feel), while automatically selecting `cartoon_font` when in **English** ("YoteShinZone", "Downloads", "Search") to ensure smooth, natural comic pop typography without glyph mismatch.
    - **Fix Applied**: Increased `lineHeight = 26.sp` and vertical padding to prevent top/bottom asat and vowel clipping.
 
 2. **Interactive Search Bar (`CartoonFontFamily`)**:

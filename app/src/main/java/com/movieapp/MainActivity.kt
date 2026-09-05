@@ -59,6 +59,7 @@ import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.MovieAppTheme
 import com.movieapp.theme.NeubrutalismIcons
 import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.headerFontFamily
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoColors
 import com.movieapp.theme.neoShadow
@@ -223,7 +224,7 @@ fun TopAppBarNeobrutalist() {
             Column {
                 Text(
                     text = t("app_title"),
-                    fontFamily = BlackTofuFontFamily,
+                    fontFamily = headerFontFamily(),
                     fontSize = 19.sp,
                     lineHeight = 26.sp,
                     fontWeight = FontWeight.Black,
