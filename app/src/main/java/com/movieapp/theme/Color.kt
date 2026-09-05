@@ -44,7 +44,8 @@ data class NeoColors(
     val error: Color,
     val errorBackground: Color,
     val onPrimary: Color = WebWhite,
-    val onSecondary: Color = WebWhite
+    val onSecondary: Color = WebWhite,
+    val onError: Color = WebWhite
 )
 
 // 1. Classic Spider-Man Suit Light Mode (Solid Flat Colors, Zero Gradients)
