@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -55,6 +56,7 @@ import com.movieapp.theme.CartoonFontFamily
 import com.movieapp.theme.NeubrutalismIcons
 import com.movieapp.theme.TypewriterFontFamily
 import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.headerFontFamily
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoColors
 import com.movieapp.theme.neoShadow
@@ -96,7 +98,7 @@ fun DownloadsScreen(
         // Screen Header
         Text(
             text = t("downloads_title"),
-            fontFamily = BlackTofuFontFamily,
+            fontFamily = headerFontFamily(),
             fontSize = 24.sp,
             fontWeight = FontWeight.Black,
             color = neoColors.textPrimary
@@ -241,6 +243,7 @@ fun ActiveDownloadCard(
     onCancel: () -> Unit
 ) {
     val neoColors = MaterialTheme.neoColors
+    val cancelDownloadLabel = t("cancel_download")
 
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -314,19 +317,56 @@ fun ActiveDownloadCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "${download.formattedDownloadedSize} / ${if (download.totalBytes > 0L) download.formattedTotalSize else "..."}",
-                    fontFamily = TypewriterFontFamily,
-                    fontSize = 12.sp,
-                    color = neoColors.textSecondary
-                )
-                Text(
-                    text = "${download.progressPercentage}%",
-                    fontFamily = CartoonFontFamily,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = neoColors.textPrimary
-                )
+                Column {
+                    Text(
+                        text = "${download.formattedDownloadedSize} / ${if (download.totalBytes > 0L) download.formattedTotalSize else "..."}",
+                        fontFamily = TypewriterFontFamily,
+                        fontSize = 12.sp,
+                        color = neoColors.textSecondary
+                    )
+                    Text(
+                        text = "${download.progressPercentage}%",
+                        fontFamily = CartoonFontFamily,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Black,
+                        color = neoColors.secondary
+                    )
+                }
+
+                // Prominent Neobrutalist Cancel Download Button
+                Box(
+                    modifier = Modifier
+                        .defaultMinSize(minHeight = 36.dp)
+                        .neoShadow(offsetX = 2.dp, offsetY = 2.dp, color = neoColors.shadow, shape = RoundedCornerShape(8.dp))
+                        .background(neoColors.error, RoundedCornerShape(8.dp))
+                        .neoBorder(width = 1.5.dp, color = neoColors.border, shape = RoundedCornerShape(8.dp))
+                        .clickable(onClick = onCancel)
+                        .semantics {
+                            role = Role.Button
+                            contentDescription = cancelDownloadLabel
+                        }
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Icon(
+                            imageVector = NeubrutalismIcons.Close,
+                            contentDescription = null,
+                            tint = neoColors.onError,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = t("cancel_download"),
+                            fontFamily = com.movieapp.theme.buttonFontFamily(),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = neoColors.onError
+                        )
+                    }
+                }
             }
         }
     }

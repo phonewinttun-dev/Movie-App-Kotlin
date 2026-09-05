@@ -69,7 +69,10 @@
     "search_movies_placeholder": "Search movies...",
     "search_tv_shows_placeholder": "Search TV shows...",
     "search_no_movies_found": "No movies found",
-    "search_no_tv_shows_found": "No TV shows found"
+    "search_no_tv_shows_found": "No TV shows found",
+    "cancel_download": "Cancel Download",
+    "cancel": "Cancel",
+    "download_cancelled": "Download cancelled"
   },
   "my": {
     "app_title": "ရုပ်ရှင်ဇုန်",
@@ -141,6 +144,9 @@
     "search_movies_placeholder": "ရုပ်ရှင်များ ရှာဖွေပါ...",
     "search_tv_shows_placeholder": "ဇာတ်လမ်းတွဲများ ရှာဖွေပါ...",
     "search_no_movies_found": "ရုပ်ရှင် မတွေ့ရှိပါ",
-    "search_no_tv_shows_found": "ဇာတ်လမ်းတွဲ မတွေ့ရှိပါ"
+    "search_no_tv_shows_found": "ဇာတ်လမ်းတွဲ မတွေ့ရှိပါ",
+    "cancel_download": "ဒေါင်းလုဒ် ပယ်ဖျက်မည်",
+    "cancel": "ပယ်ဖျက်မည်",
+    "download_cancelled": "ဒေါင်းလုဒ် ပယ်ဖျက်ပြီးပါပြီ"
   }
 }
