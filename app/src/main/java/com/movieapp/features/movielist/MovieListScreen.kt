@@ -193,7 +193,11 @@ fun MovieListScreen(
                 ) {
                     items(
                         items = uiState.currentDisplayList,
-                        key = { item -> if (item.id != 0L) item.id else item.slug ?: item.displayTitle }
+                        key = { item ->
+                            val idPart = if (item.id != 0L) item.id.toString() else item.slug ?: item.displayTitle
+                            "${uiState.activeCategory}_$idPart"
+                        },
+                        contentType = { "movie_card" }
                     ) { item ->
                         MovieGridCard(
                             item = item,
@@ -205,9 +209,12 @@ fun MovieListScreen(
                         )
                     }
 
-                    // Inline Pagination Progress Indicator (Spidey Blue)
+                    // Inline Pagination Progress Indicator (Spidey Blue) spanning full grid width
                     if (uiState.isPaginating) {
-                        item {
+                        item(
+                            span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) },
+                            contentType = "pagination_loader"
+                        ) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -364,7 +371,8 @@ private fun MovieGridCard(
     val imageRequest = remember(item.poster) {
         coil.request.ImageRequest.Builder(context)
             .data(item.poster)
-            .crossfade(true)
+            .size(coil.size.Dimension(360), coil.size.Dimension(540))
+            .precision(coil.size.Precision.INEXACT)
             .build()
     }
     val a11yLabel = "${item.displayTitle}, released in ${item.displayYear}, rating ${item.formattedRating} out of 10"
@@ -375,7 +383,6 @@ private fun MovieGridCard(
             .neoShadow(offsetX = 3.dp, offsetY = 3.dp, color = neoColors.shadow, shape = RoundedCornerShape(12.dp))
             .background(neoColors.surface, RoundedCornerShape(12.dp))
             .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(12.dp))
-            .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
             .semantics {
                 role = Role.Button
@@ -387,6 +394,7 @@ private fun MovieGridCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(2f / 3f)
+                .clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
                 .background(neoColors.surfaceMuted)
         ) {
             AsyncImage(

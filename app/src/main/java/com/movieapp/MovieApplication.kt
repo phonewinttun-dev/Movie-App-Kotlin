@@ -29,10 +29,12 @@ class MovieApplication : Application(), ImageLoaderFactory {
             .diskCache {
                 DiskCache.Builder()
                     .directory(cacheDir.resolve("image_cache"))
-                    .maxSizeBytes(50L * 1024L * 1024L) // 50 MB
+                    .maxSizeBytes(100L * 1024L * 1024L) // 100 MB
                     .build()
             }
-            .crossfade(true)
+            .bitmapConfig(android.graphics.Bitmap.Config.RGB_565)
+            .allowRgb565(true)
+            .crossfade(false)
             .respectCacheHeaders(false)
             .build()
     }

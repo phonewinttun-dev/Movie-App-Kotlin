@@ -164,7 +164,11 @@ fun BookmarkScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(bookmarkedMovies, key = { it.slug }) { movie ->
+                    items(
+                        items = bookmarkedMovies,
+                        key = { it.slug },
+                        contentType = { "bookmark_card" }
+                    ) { movie ->
                         BookmarkMovieCard(
                             item = movie,
                             onClick = { onTitleClick(movie.slug, movie.isTvShow) },
@@ -205,7 +209,8 @@ private fun BookmarkMovieCard(
     val imageRequest = remember(item.poster) {
         coil.request.ImageRequest.Builder(context)
             .data(item.poster)
-            .crossfade(true)
+            .size(coil.size.Dimension(360), coil.size.Dimension(540))
+            .precision(coil.size.Precision.INEXACT)
             .build()
     }
 
@@ -215,7 +220,6 @@ private fun BookmarkMovieCard(
             .neoShadow(offsetX = 3.dp, offsetY = 3.dp, color = neoColors.shadow, shape = RoundedCornerShape(12.dp))
             .background(neoColors.surface, RoundedCornerShape(12.dp))
             .neoBorder(width = 2.dp, color = neoColors.border, shape = RoundedCornerShape(12.dp))
-            .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
             .semantics {
                 role = Role.Button
@@ -226,6 +230,7 @@ private fun BookmarkMovieCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(2f / 3f)
+                .clip(RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
                 .background(neoColors.surfaceMuted)
         ) {
             AsyncImage(

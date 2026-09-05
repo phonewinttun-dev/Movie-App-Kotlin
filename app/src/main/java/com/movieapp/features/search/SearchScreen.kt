@@ -28,6 +28,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +54,7 @@ import com.movieapp.theme.NeoButton
 import com.movieapp.theme.NeubrutalismIcons
 import com.movieapp.theme.TypewriterFontFamily
 import com.movieapp.theme.YoeshinFontFamily
+import com.movieapp.theme.headerFontFamily
 import com.movieapp.theme.neoBorder
 import com.movieapp.theme.neoColors
 import com.movieapp.theme.neoShadow
@@ -93,7 +95,7 @@ fun SearchScreen(
         ) {
             Text(
                 text = t("search_heading"),
-                fontFamily = BlackTofuFontFamily,
+                fontFamily = headerFontFamily(),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Black,
                 color = neoColors.textPrimary
@@ -309,7 +311,8 @@ fun SearchScreen(
                 ) {
                     items(
                         items = uiState.results,
-                        key = { "${it.id}_${it.slug}_${it.displayTitle}" }
+                        key = { "${it.id}_${it.slug}_${it.displayTitle}" },
+                        contentType = { "search_card" }
                     ) { item ->
                         SearchResultCard(
                             item = item,
@@ -343,6 +346,14 @@ private fun SearchResultCard(
     onClick: () -> Unit
 ) {
     val neoColors = MaterialTheme.neoColors
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val imageRequest = remember(item.poster) {
+        coil.request.ImageRequest.Builder(context)
+            .data(item.poster)
+            .size(coil.size.Dimension(120), coil.size.Dimension(170))
+            .precision(coil.size.Precision.INEXACT)
+            .build()
+    }
     val a11yLabel = "${item.displayTitle}, released in ${item.displayYear}, rating ${item.formattedRating}"
 
     Row(
@@ -368,7 +379,7 @@ private fun SearchResultCard(
                 .background(neoColors.surfaceMuted)
         ) {
             AsyncImage(
-                model = item.poster,
+                model = imageRequest,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
