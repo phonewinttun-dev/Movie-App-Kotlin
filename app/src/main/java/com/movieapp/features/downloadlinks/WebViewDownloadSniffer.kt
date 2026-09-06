@@ -54,7 +54,8 @@ object WebViewDownloadSniffer {
             cleanUrl.contains("/cdn-cgi/") ||
             cleanUrl.contains("challenge-platform") ||
             cleanUrl.contains(".html") ||
-            cleanUrl.contains(".php")
+            cleanUrl.contains(".php") ||
+            cleanUrl.contains("download.megaup.net/?url=")
         ) {
             return false
         }
@@ -83,8 +84,7 @@ object WebViewDownloadSniffer {
         }
 
         // Download endpoints often used by file hosts
-        if (cleanUrl.contains("download.megaup.net") ||
-            cleanUrl.contains("/download/") ||
+        if (cleanUrl.contains("/download/") ||
             cleanUrl.contains("/get/") ||
             cleanUrl.contains("storage.googleapis.com")
         ) {

@@ -283,37 +283,78 @@ fun InteractiveDownloadSheet(
 
                             // 1. Intercept direct file download trigger from server
                             setDownloadListener(DownloadListener { downloadUrl, userAgent, contentDisposition, mimetype, contentLength ->
-                                if (isResolved.compareAndSet(false, true)) {
-                                    val pageCookies = try { link.url?.let { cookieManager.getCookie(it) } } catch (_: Exception) { null }
-                                    val dlCookies = try { cookieManager.getCookie(downloadUrl) } catch (_: Exception) { null }
-                                    val mergedCookies = listOfNotNull(pageCookies, dlCookies).flatMap { it.split("; ") }.distinct().joinToString("; ").takeIf { it.isNotBlank() }
+                                val cleanUrl = downloadUrl.lowercase()
 
-                                    val result = SniffResult(
-                                        directUrl = downloadUrl,
-                                        cookies = mergedCookies,
-                                        userAgent = userAgent.takeIf { !it.isNullOrBlank() } ?: WebViewDownloadSniffer.CHROME_USER_AGENT,
-                                        mimeType = mimetype,
-                                        contentDisposition = contentDisposition,
-                                        contentLength = contentLength,
-                                        referer = link.url
-                                    )
-                                    Handler(Looper.getMainLooper()).post {
-                                        onStreamResolved(result)
+                                // If this is an intermediate MegaUp challenge URL, navigate into it to display Turnstile Captcha
+                                if (cleanUrl.contains("download.megaup.net/?url=") ||
+                                    (cleanUrl.contains("megaup.net") && (mimetype?.contains("text/html") == true || (contentLength in 1..500_000)))
+                                ) {
+                                    loadUrl(downloadUrl)
+                                    return@DownloadListener
+                                }
+
+                                // Only intercept if it is an authentic video stream or binary payload > 5 MB
+                                val isAuthenticMedia = WebViewDownloadSniffer.isMediaStream(downloadUrl, mimetype) ||
+                                        mimetype?.startsWith("video/") == true ||
+                                        mimetype == "application/x-matroska" ||
+                                        mimetype == "binary/octet-stream" ||
+                                        contentLength > 5 * 1024 * 1024L
+
+                                if (isAuthenticMedia) {
+                                    if (isResolved.compareAndSet(false, true)) {
+                                        val pageCookies = try { link.url?.let { cookieManager.getCookie(it) } } catch (_: Exception) { null }
+                                        val dlCookies = try { cookieManager.getCookie(downloadUrl) } catch (_: Exception) { null }
+                                        val mergedCookies = listOfNotNull(pageCookies, dlCookies).flatMap { it.split("; ") }.distinct().joinToString("; ").takeIf { it.isNotBlank() }
+
+                                        val result = SniffResult(
+                                            directUrl = downloadUrl,
+                                            cookies = mergedCookies,
+                                            userAgent = userAgent.takeIf { !it.isNullOrBlank() } ?: WebViewDownloadSniffer.CHROME_USER_AGENT,
+                                            mimeType = mimetype,
+                                            contentDisposition = contentDisposition,
+                                            contentLength = contentLength,
+                                            referer = link.url
+                                        )
+                                        Handler(Looper.getMainLooper()).post {
+                                            onStreamResolved(result)
+                                        }
                                     }
+                                } else {
+                                    // Not verified media; continue loading in WebView
+                                    loadUrl(downloadUrl)
                                 }
                             })
 
-                            // 2. Track page loading progress
+                            // 2. Track page loading progress & eagerly skip countdown timer
                             webChromeClient = object : WebChromeClient() {
                                 override fun onProgressChanged(view: WebView?, newProgress: Int) {
                                     pageProgress = newProgress / 100f
+                                    if (newProgress >= 40) {
+                                        val fastTimerSkip = """
+                                            (function() {
+                                                if (typeof seconds !== 'undefined' && typeof display === 'function') {
+                                                    seconds = 0;
+                                                    display();
+                                                    if (typeof countdownTimer !== 'undefined') clearInterval(countdownTimer);
+                                                }
+                                            })();
+                                        """.trimIndent()
+                                        view?.evaluateJavascript(fastTimerSkip, null)
+                                    }
                                 }
                             }
 
-                            // 3. Intercept media redirects and inject auto-timer clicker
+                            // 3. Intercept media redirects & inject countdown timer bypass
                             webViewClient = object : WebViewClient() {
                                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                                     val reqUrl = request?.url?.toString() ?: return false
+                                    val cleanUrl = reqUrl.lowercase()
+
+                                    // Let intermediate Turnstile challenge pages load inside the WebView
+                                    if (cleanUrl.contains("download.megaup.net/?url=")) {
+                                        return false
+                                    }
+
                                     if (WebViewDownloadSniffer.isMediaStream(reqUrl, null)) {
                                         if (isResolved.compareAndSet(false, true)) {
                                             val pageCookies = try { link.url?.let { cookieManager.getCookie(it) } } catch (_: Exception) { null }
@@ -337,6 +378,12 @@ fun InteractiveDownloadSheet(
 
                                 override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
                                     val reqUrl = request?.url?.toString() ?: return null
+                                    val cleanUrl = reqUrl.lowercase()
+
+                                    if (cleanUrl.contains("download.megaup.net/?url=")) {
+                                        return null
+                                    }
+
                                     if (WebViewDownloadSniffer.isMediaStream(reqUrl, null)) {
                                         if (isResolved.compareAndSet(false, true)) {
                                             val pageCookies = try { link.url?.let { cookieManager.getCookie(it) } } catch (_: Exception) { null }
@@ -359,20 +406,31 @@ fun InteractiveDownloadSheet(
 
                                 override fun onPageFinished(view: WebView?, url: String?) {
                                     super.onPageFinished(view, url)
-                                    // Script to automatically click download button once 5s countdown elapses
-                                    val jsClick = """
+                                    // Robust countdown timer bypass: zeroes out countdown and reveals download button immediately
+                                    val jsTimerBypass = """
                                         (function() {
-                                            var interval = setInterval(function() {
-                                                var btn = document.querySelector('#btn-download, a.btn-download, .download-timer a, a[href*="download.megaup.net"], a[href*="/download/"]');
-                                                if (btn && btn.offsetParent !== null) {
-                                                    btn.click();
-                                                    clearInterval(interval);
+                                            function bypass() {
+                                                if (typeof seconds !== 'undefined' && typeof display === 'function') {
+                                                    seconds = 0;
+                                                    display();
+                                                    if (typeof countdownTimer !== 'undefined') {
+                                                        clearInterval(countdownTimer);
+                                                    }
                                                 }
-                                            }, 1000);
-                                            setTimeout(function() { clearInterval(interval); }, 20000);
+                                                var btn = document.querySelector('.download-timer a, #btn-download, a.btn-download');
+                                                if (btn) {
+                                                    btn.classList.remove('disabled');
+                                                    btn.removeAttribute('disabled');
+                                                    btn.style.display = 'block';
+                                                    btn.style.pointerEvents = 'auto';
+                                                }
+                                            }
+                                            bypass();
+                                            var bypassInterval = setInterval(bypass, 150);
+                                            setTimeout(function() { clearInterval(bypassInterval); }, 6000);
                                         })();
                                     """.trimIndent()
-                                    view?.evaluateJavascript(jsClick, null)
+                                    view?.evaluateJavascript(jsTimerBypass, null)
                                 }
                             }
 

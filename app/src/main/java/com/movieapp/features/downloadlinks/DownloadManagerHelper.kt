@@ -161,6 +161,55 @@ object DownloadManagerHelper {
     }
 
     /**
+     * Starts an in-app download using MovieDownloadService (OkHttp streaming) with cookies and user-agent.
+     * Prevents corrupt HTML downloads and provides persistent foreground notification progress.
+     */
+    fun startMovieDownloadService(
+        context: Context,
+        title: String,
+        directUrl: String,
+        movieSlug: String = "",
+        poster: String? = null,
+        cookies: String? = null,
+        userAgent: String? = null,
+        referer: String? = null
+    ): Long {
+        if (DirectDownloadResolver.isKnownWebPortal(directUrl)) {
+            Toast.makeText(context, "Cannot download portal page directly", Toast.LENGTH_SHORT).show()
+            return -1L
+        }
+
+        val downloadId = System.currentTimeMillis()
+        return try {
+            com.movieapp.features.downloads.MovieDownloadService.startDownload(
+                context = context,
+                downloadId = downloadId,
+                title = title,
+                directUrl = directUrl,
+                cookies = cookies,
+                userAgent = userAgent,
+                referer = referer,
+                movieSlug = movieSlug,
+                poster = poster
+            )
+            Toast.makeText(context, "${LocalizationManager.getString("download_started")}: $title", Toast.LENGTH_SHORT).show()
+            downloadId
+        } catch (_: Exception) {
+            // Fallback to native DownloadManager
+            startNativeDownload(
+                context = context,
+                title = title,
+                directUrl = directUrl,
+                movieSlug = movieSlug,
+                poster = poster,
+                cookies = cookies,
+                userAgent = userAgent,
+                referer = referer
+            )
+        }
+    }
+
+    /**
      * Enqueues a verified direct file URL to Android's native DownloadManager and persists to Room.
      * Optionally attaches authenticated cookies, user-agent, and referer headers to bypass CDN hotlink protections.
      */

@@ -107,6 +107,9 @@ class DownloadRepository(
      */
     suspend fun cancelDownload(downloadId: Long) {
         try {
+            com.movieapp.features.downloads.MovieDownloadService.cancelDownload(context, downloadId)
+        } catch (_: Exception) {}
+        try {
             downloadManager.remove(downloadId)
         } catch (_: Exception) {}
         downloadDao.deleteDownload(downloadId)

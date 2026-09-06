@@ -66,37 +66,35 @@ class WebViewSnifferUnitTest {
     @Test
     @Trait(category = "positive", secondary = "boundary")
     fun testSnifferMediaDetection_downloadEndpoints_recognized() {
-        assertTrue(WebViewDownloadSniffer.isMediaStream("https://download.megaup.net/?url=abc", "application/octet-stream"))
+        assertTrue(WebViewDownloadSniffer.isMediaStream("https://cdn.example.com/get/stream123", "application/octet-stream"))
+        assertTrue(WebViewDownloadSniffer.isMediaStream("https://s12.megaup.net/cache/video.mp4", "video/mp4"))
         assertTrue(WebViewDownloadSniffer.isMediaStream("https://cdn.example.com/download/stream123", "video/mp4"))
         assertTrue(WebViewDownloadSniffer.isMediaStream("https://storage.googleapis.com/movie-bucket/sample", "video/mp4"))
     }
 
     @Test
+    @Trait(category = "negative", secondary = "boundary")
+    fun testSnifferMediaDetection_megaupChallengeUrl_rejected() {
+        assertFalse(WebViewDownloadSniffer.isMediaStream("https://download.megaup.net/?url=abc", null))
+        assertFalse(WebViewDownloadSniffer.isMediaStream("https://download.megaup.net/?url=abc", "text/html"))
+    }
+
+    @Test
     @Trait(category = "positive", secondary = "integration")
-    fun testCookieAndUserAgentInjectionInDownloadManager() {
+    fun testMovieDownloadServiceStart() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val directUrl = "https://cdn.example.com/movies/sample_video.mp4"
         val testCookies = "cf_clearance=abcd1234efgh; session=xyz987"
         val testUserAgent = WebViewDownloadSniffer.CHROME_USER_AGENT
 
-        // Verify request builds with cookies and userAgent without throwing
-        val uri = Uri.parse(directUrl)
-        val request = DownloadManager.Request(uri).apply {
-            setTitle("Test Movie")
-            addRequestHeader("Cookie", testCookies)
-            addRequestHeader("User-Agent", testUserAgent)
-        }
-        assertNotNull(request)
-
-        // Enqueue via DownloadManagerHelper
-        val downloadId = DownloadManagerHelper.startNativeDownload(
+        val downloadId = DownloadManagerHelper.startMovieDownloadService(
             context = context,
-            title = "Test Movie",
+            title = "Test Movie Service",
             directUrl = directUrl,
             cookies = testCookies,
             userAgent = testUserAgent
         )
-        assertTrue("DownloadManager must successfully enqueue request (id >= 0)", downloadId >= 0)
+        assertTrue("MovieDownloadService must assign valid task ID (id >= 0)", downloadId >= 0)
     }
 
     @Test

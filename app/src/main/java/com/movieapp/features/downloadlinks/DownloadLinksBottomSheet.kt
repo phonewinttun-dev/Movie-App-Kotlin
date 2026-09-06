@@ -283,7 +283,7 @@ fun DownloadLinksBottomSheet(
                                         resolvingLinkId = null
                                         resolvingJob = null
                                         result.onSuccess { sniffResult ->
-                                            DownloadManagerHelper.startNativeDownload(
+                                            DownloadManagerHelper.startMovieDownloadService(
                                                 context = context,
                                                 title = title,
                                                 directUrl = sniffResult.directUrl,
@@ -330,7 +330,7 @@ fun DownloadLinksBottomSheet(
             title = title,
             onStreamResolved = { sniffResult ->
                 interactiveLink = null
-                DownloadManagerHelper.startNativeDownload(
+                DownloadManagerHelper.startMovieDownloadService(
                     context = context,
                     title = title,
                     directUrl = sniffResult.directUrl,
