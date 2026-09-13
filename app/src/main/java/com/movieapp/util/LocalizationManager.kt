@@ -123,7 +123,15 @@ object LocalizationManager {
         "video_player_error" to "Unable to play video file. Tap external to open in VLC or MX Player.",
         "video_player_tap_hint" to "Tap screen to toggle controls",
         "video_player_scrubber" to "Video timeline scrubber",
-        "video_player_screen_awake" to "Screen stays awake"
+        "video_player_screen_awake" to "Screen stays awake",
+        "video_player_fullscreen" to "Full screen",
+        "video_player_exit_fullscreen" to "Exit full screen",
+        "video_player_rotate" to "Rotate screen",
+        "video_player_aspect_ratio" to "Aspect ratio",
+        "video_player_aspect_fit" to "Fit",
+        "video_player_aspect_zoom" to "Crop to Fill",
+        "video_player_aspect_stretch" to "Stretch",
+        "video_player_speed" to "Playback speed"
     )
 
     fun initialize(context: Context) {
