@@ -111,7 +111,22 @@
     "video_player_aspect_fit": "Fit",
     "video_player_aspect_zoom": "Crop to Fill",
     "video_player_aspect_stretch": "Stretch",
-    "video_player_speed": "Playback speed"
+    "video_player_speed": "Playback speed",
+    "filter_genres": "Genres",
+    "filter_genre_all": "All",
+    "filter_rating": "IMDb Rating",
+    "filter_rating_all": "All",
+    "filter_rating_6": "6+",
+    "filter_rating_7": "7+",
+    "filter_rating_8": "8+",
+    "sort_label": "Sort",
+    "sort_default": "Default",
+    "sort_top_rated": "Top Rated",
+    "sort_newest": "Newest Year",
+    "sort_title_az": "Title (A-Z)",
+    "filter_reset": "Reset Filters",
+    "filter_no_results": "No movies match selected filters",
+    "filter_empty_desc": "Try adjusting your genre or rating filters to find what you want."
   },
   "my": {
     "app_title": "ရုပ်ရှင်ဇုန်",
@@ -225,6 +240,21 @@
     "video_player_aspect_fit": "အံဝင်ခွင်ကျ",
     "video_player_aspect_zoom": "မျက်နှာပြင်အပြည့်",
     "video_player_aspect_stretch": "ဆန့်ထွက်",
-    "video_player_speed": "အမြန်နှုန်း"
+    "video_player_speed": "အမြန်နှုန်း",
+    "filter_genres": "အမျိုးအစား",
+    "filter_genre_all": "အားလုံး",
+    "filter_rating": "IMDb အဆင့်",
+    "filter_rating_all": "အားလုံး",
+    "filter_rating_6": "၆+",
+    "filter_rating_7": "၇+",
+    "filter_rating_8": "၈+",
+    "sort_label": "Sort",
+    "sort_default": "မူလအစဉ်အတိုင်း",
+    "sort_top_rated": "Rating အများဆုံး",
+    "sort_newest": "အသစ်ထွက်",
+    "sort_title_az": "Title (A-Z)",
+    "filter_reset": "မူလအတိုင်း ပြန်ထားမည်",
+    "filter_no_results": "ဇာတ်ကားရှာမတွေ့ပါ",
+    "filter_empty_desc": "အခြား အမျိုးအစား သို့မဟုတ် IMDb အဆင့်ကို ပြောင်းလဲရွေးချယ်ကြည့်ပါ"
   }
 }

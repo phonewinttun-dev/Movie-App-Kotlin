@@ -131,7 +131,21 @@ object LocalizationManager {
         "video_player_aspect_fit" to "Fit",
         "video_player_aspect_zoom" to "Crop to Fill",
         "video_player_aspect_stretch" to "Stretch",
-        "video_player_speed" to "Playback speed"
+        "video_player_speed" to "Playback speed",
+        "filter_genres" to "Genres",
+        "filter_genre_all" to "All",
+        "filter_rating" to "IMDb Rating",
+        "filter_rating_all" to "All",
+        "filter_rating_6" to "6+",
+        "filter_rating_7" to "7+",
+        "filter_rating_8" to "8+",
+        "sort_label" to "Sort",
+        "sort_default" to "Default",
+        "sort_top_rated" to "Top Rated",
+        "sort_newest" to "Newest Year",
+        "sort_title_az" to "Title (A-Z)",
+        "filter_reset" to "Reset Filters",
+        "filter_no_results" to "No movies match selected filters"
     )
 
     fun initialize(context: Context) {
